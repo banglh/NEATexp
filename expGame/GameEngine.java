@@ -262,8 +262,15 @@ public class GameEngine {
 		double d = 0.1;
 		double p = 0.2;
 		GameEngine ge = new GameEngine(s, chi, d, p);
-		ge.printGameInfo();
 		ge.initGame();
+		ge.printGameInfo();
+		
+		Random rd = new Random(System.currentTimeMillis());
+		int direction;
+		while (!ge.isGameEnded()) {
+			direction = rd.nextInt(2);
+			ge.move(direction);
+		}
 		ge.printGameInfo();
 	}
 }

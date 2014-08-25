@@ -52,9 +52,73 @@ public class GameEngine {
 		// initialize agent position
 		initAgentPos();
 
-		agentCurPos = agentInitPos.clone();
+		agentCurPos[0] = agentInitPos[0];
+		agentCurPos[1] = agentInitPos[1];
 		totalReward = 0.0;
 		initialized = true;
+		gameEnded = false;
+	}
+	
+	// reset game
+	public void resetGame() {
+		// reset agent's location
+		agentCurPos[0] = agentInitPos[0];
+		agentCurPos[1] = agentInitPos[1];
+		
+		// reset total reward
+		totalReward = 0.0;
+		
+		// other information
+		gameEnded = false;
+	}
+	
+	// move function
+	public int move(int expectedDirection) {
+		int realDirection = -1;
+		
+		// check if the agent is in a terminal state
+		if (isTerminalState(agentCurPos))
+			return realDirection;
+		
+		// check if expected direction is valid
+		if (expectedDirection != NORTH && expectedDirection != EAST) {
+			return realDirection;
+		}
+		
+		// get real moving direction
+		double prob = rand.nextDouble();
+		if (prob < 1- p)
+			realDirection = expectedDirection;
+		else
+			realDirection = (NORTH + EAST) - expectedDirection;
+		
+		// moving 
+		switch (realDirection) {
+		case NORTH:
+			// update current agent's location
+			agentCurPos[0] -= 1;
+			break;
+		case EAST:
+			// update current agent's location
+			agentCurPos[1] += 1;
+			break;
+		}
+		// update total reward
+		totalReward += map[agentCurPos[0]][agentCurPos[1]];
+		
+		// check and update game state
+		if (isTerminalState(agentCurPos))
+			gameEnded = true;
+		
+		return realDirection;
+	}
+
+	// check if current state if a terminal state
+	private boolean isTerminalState(int [] location) {
+		boolean isTerminal = false;
+		if (location[0] == 0 || location[1] == s-1)
+			isTerminal = true;
+		return isTerminal;
 	}
 	
 	// initialize map
@@ -190,6 +254,7 @@ public class GameEngine {
 		System.out.println("+ Agent's current location");
 		System.out.printf("[%d][%d]\n", agentCurPos[0], agentCurPos[1]);
 	}
+
 	// main function
 	public static void main(String args[]) {
 		int s = 5;

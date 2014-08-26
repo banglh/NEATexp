@@ -130,9 +130,42 @@ public class GameEngine {
 		return realDirection;
 	}
 
+	// run a controller n times to evaluate it's performance
+	// return the normalized average reward of n runs
+	public double evaluate(Controller controller, int n) {
+		double avgRewardNorm = 0.0;
+		
+		for (int run = 0; run < n; run++) {
+			// reset game
+			resetGame();
+			
+			// run game
+			while (!gameEnded) {
+				// get RBF values
+				double [] rbfs = getCurrentRBFs();
+				
+				// get expected direction from controller
+				int expectedDirection = controller.getDirection(rbfs);
+				
+				// move
+				move(expectedDirection);
+			}
+			
+			avgRewardNorm += totalReward;
+		}
+		
+		avgRewardNorm /= n;
+		avgRewardNorm = (avgRewardNorm - worstSolutionReward) / (bestSolutionReward - worstSolutionReward);
+		
+		return avgRewardNorm;
+	}
+	
+	private double [] getCurrentRBFs() {
+		return RBFsTable.get(agentCurPos);
+	}
+	
 	// calculate the best solution for the current game
 	private double calculateBestSolution(int [] agentPos) {
-		// TODO get the best solution (produce highest reward) of the game
 		// recursively calculate best reward
 		double bestReward = 0.0;
 		
@@ -161,7 +194,6 @@ public class GameEngine {
 	
 	// calculate the worst solution for the current game
 	private double calculateWorstSolution(int [] agentPos) {
-		// TODO get the worst solution (produce lowest reward) of the game
 		// recursively calculate worst reward
 		double worstReward = 0.0;
 		
@@ -377,5 +409,10 @@ public class GameEngine {
 		GameEngine ge = new GameEngine(s, chi, d, p);
 		ge.initGame();
 		ge.printGameInfo();
+		
+		RandomController rc = new RandomController();
+		int n = 10000;
+		double result = ge.evaluate(rc, n);
+		System.out.printf("Result: %f\n", result);
 	}
 }

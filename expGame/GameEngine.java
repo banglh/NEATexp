@@ -1,6 +1,8 @@
 package expGame;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 
@@ -15,6 +17,7 @@ public class GameEngine {
 	private double chi, d, p;		// chi, d, p params
 	private int nf;					// number of radial basis functions
 	private int [][] RBFsPos;		// positions of radial basis function centers
+	private Map<int [], double []> RBFsTable;
 	private double sdRBF; 			// standard deviation of radial basis functions
 	private int [] agentInitPos;	// initial agent's position
 	private boolean initialized = false;
@@ -36,6 +39,7 @@ public class GameEngine {
 		this.map = new double [s][s];
 		this.nf = (int) Math.floor(chi*(s-1)*(s-1));
 		this.RBFsPos = new int [this.nf][2];
+		this.RBFsTable = new HashMap<int [], double []>();
 		this.agentInitPos = new int [2];
 		this.agentCurPos = new int [2];
 		rand = new Random(System.currentTimeMillis());
@@ -48,6 +52,9 @@ public class GameEngine {
 		
 		// initialize RBF centers
 		initRBFs();
+		
+		// initialize RBFs table
+		initRBFsTable();
 		
 		// initialize agent position
 		initAgentPos();
@@ -172,6 +179,41 @@ public class GameEngine {
 		agentInitPos[1] = col;	
 	}
 
+	// function to calculate RBF values for every locations in advance
+	private void initRBFsTable() {
+		// produce a dictionary <location-rbfs>
+		for (int row = 0; row < s; row++) {
+			for (int col = 0; col < s; col++) {
+				int [] location = {row, col};
+				double [] rbfs = getRBFValues(location);
+				RBFsTable.put(location, rbfs);
+			}
+		}
+	}
+	
+	// get RBF values for a particular location
+	private double [] getRBFValues(int [] location) {
+		double [] rbfVals = new double [nf];
+		
+		for (int i = 0; i < nf; i++) {
+			rbfVals[i] = calculateRBF(RBFsPos[i], location);
+		}
+		
+		return rbfVals;
+	}
+	
+	// RBF
+	private double calculateRBF(int [] rbfCenterPos, int [] location) {
+		double rbf = 0.0;
+
+		// Gaussian rbf
+		double peak = map[rbfCenterPos[0]][rbfCenterPos[1]];
+		double distanceSquare = Math.pow(rbfCenterPos[0] - location[0], 2) + Math.pow(rbfCenterPos[1] - location[1], 2);
+		rbf = peak * Math.exp(-0.5 * distanceSquare / (this.sdRBF * this.sdRBF));
+		
+		return rbf;
+	}
+	
 	// get functions
 	public int get_s() {
 		return s;
@@ -271,6 +313,8 @@ public class GameEngine {
 			direction = rd.nextInt(2);
 			ge.move(direction);
 		}
+		ge.printGameInfo();
+		ge.resetGame();
 		ge.printGameInfo();
 	}
 }

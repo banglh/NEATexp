@@ -12,21 +12,25 @@ public class GameEngine {
 	public static final int EAST = 1;	// east direction
 	
 	// game parameters
-	private double [][] map;		// game board
 	private int s;					// board size
 	private double chi, d, p;		// chi, d, p params
 	private int nf;					// number of radial basis functions
+	private double sdRBF; 			// standard deviation of radial basis functions
+	private Random rand;
+	
+	// game data
+	private double [][] map;		// game board
 	private int [][] RBFsPos;		// positions of radial basis function centers
 	private Map<int [], double []> RBFsTable;
-	private double sdRBF; 			// standard deviation of radial basis functions
 	private int [] agentInitPos;	// initial agent's position
-	private boolean initialized = false;
-	private Random rand;
+	private double bestSolutionReward;
+	private double worstSolutionReward;
 
 	// game status
 	private int [] agentCurPos;		// current position of agent
 	private double totalReward;		// current total reward
 	private boolean gameEnded = false;		// game ended or not
+	private boolean initialized = false;	// game is initialized or not
 
 	// constructors
 	public GameEngine(int s, double chi, double d, double p) {
@@ -42,6 +46,8 @@ public class GameEngine {
 		this.RBFsTable = new HashMap<int [], double []>();
 		this.agentInitPos = new int [2];
 		this.agentCurPos = new int [2];
+		this.bestSolutionReward = Double.MAX_VALUE;
+		this.worstSolutionReward = 0.0;
 		rand = new Random(System.currentTimeMillis());
 	}
 	
@@ -59,6 +65,10 @@ public class GameEngine {
 		// initialize agent position
 		initAgentPos();
 
+		// calculate the best and the worst solutions
+		bestSolutionReward = calculateBestSolution(agentInitPos);
+		worstSolutionReward = calculateWorstSolution(agentInitPos);
+		
 		agentCurPos[0] = agentInitPos[0];
 		agentCurPos[1] = agentInitPos[1];
 		totalReward = 0.0;
@@ -118,6 +128,63 @@ public class GameEngine {
 			gameEnded = true;
 		
 		return realDirection;
+	}
+
+	// calculate the best solution for the current game
+	private double calculateBestSolution(int [] agentPos) {
+		// TODO get the best solution (produce highest reward) of the game
+		// recursively calculate best reward
+		double bestReward = 0.0;
+		
+		if (isTerminalState(agentPos)) {
+			bestReward = 0.0;
+		} else {
+			// agent's position after moving North/East
+			int [] northPos = {agentPos[0] - 1, agentPos[1]};
+			int [] eastPos = {agentPos[0], agentPos[1] + 1};
+			
+			// received reward after moving North/East
+			double northReward = map[northPos[0]][northPos[1]];
+			double eastReward = map[eastPos[0]][eastPos[1]];
+			
+			// best long term reward of moving North/East
+			double bestNorthReward = northReward + calculateBestSolution(northPos);
+			double bestEastReward = eastReward + calculateBestSolution(eastPos);
+			
+			// get best reward
+			bestReward = Math.max(bestNorthReward, bestEastReward);
+		}
+		
+		return bestReward;
+	}
+
+	
+	// calculate the worst solution for the current game
+	private double calculateWorstSolution(int [] agentPos) {
+		// TODO get the worst solution (produce lowest reward) of the game
+		// recursively calculate worst reward
+		double worstReward = 0.0;
+		
+		if (isTerminalState(agentPos)) {
+			worstReward = 0.0;
+		} else {
+			// agent's position after moving North/East
+			int [] northPos = {agentPos[0] - 1, agentPos[1]};
+			int [] eastPos = {agentPos[0], agentPos[1] + 1};
+			
+			// received reward after moving North/East
+			double northReward = map[northPos[0]][northPos[1]];
+			double eastReward = map[eastPos[0]][eastPos[1]];
+			
+			// worst long term reward of moving North/East
+			double worstNorthReward = northReward + calculateWorstSolution(northPos);
+			double worstEastReward = eastReward + calculateWorstSolution(eastPos);
+			
+			// get worst reward
+			worstReward = Math.min(worstNorthReward, worstEastReward);
+		}
+		
+		return worstReward;
 	}
 
 	// check if current state if a terminal state
@@ -295,6 +362,10 @@ public class GameEngine {
 		// Agent's current position
 		System.out.println("+ Agent's current location");
 		System.out.printf("[%d][%d]\n", agentCurPos[0], agentCurPos[1]);
+		
+		// the best and the worst reward
+		System.out.printf("Best Reward: %f\n", bestSolutionReward);
+		System.out.printf("Worst reward: %f\n", worstSolutionReward);
 	}
 
 	// main function
@@ -305,16 +376,6 @@ public class GameEngine {
 		double p = 0.2;
 		GameEngine ge = new GameEngine(s, chi, d, p);
 		ge.initGame();
-		ge.printGameInfo();
-		
-		Random rd = new Random(System.currentTimeMillis());
-		int direction;
-		while (!ge.isGameEnded()) {
-			direction = rd.nextInt(2);
-			ge.move(direction);
-		}
-		ge.printGameInfo();
-		ge.resetGame();
 		ge.printGameInfo();
 	}
 }

@@ -4,7 +4,8 @@ package jneat;
 
 import java.lang.reflect.*;
 import java.util.*;
-import gui.*;
+//import gui.*;
+import nogui.*;
 import jNeatCommon.*;
 
 /**

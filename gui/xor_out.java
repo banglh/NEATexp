@@ -1,3 +1,5 @@
+package gui;
+
 public class xor_out {
 
 	public static int getNumUnit() {

@@ -1,3 +1,5 @@
+package gui;
+
 public class xor_fit {
 
 	public static double getMaxFitness() {

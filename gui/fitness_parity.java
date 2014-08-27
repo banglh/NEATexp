@@ -1,3 +1,5 @@
+package gui;
+
 public class fitness_parity {
 
 	public static double getMaxFitness() {

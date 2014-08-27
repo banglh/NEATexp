@@ -15,6 +15,8 @@ package gui;
  import javax.accessibility.*;
  */
 
+import jNeatCommon.EnvConstant;
+
 import javax.swing.JTabbedPane;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -23,6 +25,7 @@ import javax.swing.JFrame;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import log.*;
 
 import javax.swing.*;
@@ -74,6 +77,9 @@ public class MainGui extends JPanel {
 		a_session = new Session(_f);
 		a_generation = new Generation(_f);
 		a_grafi = new Grafi(_f);
+		// <bang> change user folder path
+//		EnvConstant.JNEAT_DIR += EnvConstant.OS_FILE_SEP + "gui";
+		
 
 		logger = new HistoryLog();
 

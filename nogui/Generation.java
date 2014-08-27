@@ -924,41 +924,42 @@ public class Generation {
 
 			pop.epoch(generation);
 
-			if (!EnvConstant.REPORT_SPECIES_TESTA.equalsIgnoreCase("")) {
-				if (win)
-					logger.sendToLog(" generation:    This specie contains the  << WINNER >> ");
+//			if (!EnvConstant.REPORT_SPECIES_TESTA.equalsIgnoreCase("")) {
+//				if (win)
+//					logger.sendToLog(" generation:    This specie contains the  << WINNER >> ");
+//
+//				if (!(EnvConstant.FIRST_ORGANISM_WINNER == null)) {
+//					int idx = ((Organism) EnvConstant.FIRST_ORGANISM_WINNER).genome.genome_id;
+//
+//					if (win)
+//						riga1 = "Time : " + generation + " genome (id=" + idx
+//								+ ") is Current CHAMPION - WINNER ";
+//					else
+//						riga1 = "Time : " + generation + " genome (id=" + idx
+//								+ ") is Current CHAMPION ";
+//				}
+//
+//				if (!(EnvConstant.CURR_ORGANISM_CHAMPION == null)) {
+////					drawGraph((Organism) EnvConstant.CURR_ORGANISM_CHAMPION,
+////							" ", mappa_graph_curr);
+//				}
+//			}
+//
+//			v1_species.add(new Double(generation));
+//			v1_species.add(new Double(pop.getSpecies().size()));
+//
+//			v1_fitness.add(new Double(generation));
+//			v1_fitness.add(new Double(pop.getHighest_fitness()));
+//
+//			v1_fitness_win.add(new Double(generation));
+//			v1_fitness_win.add(new Double(EnvConstant.MAX_WINNER_FITNESS));
+//
+//			if (win)
+//				riga1 = "Time : " + generation + " found WINNER ! ";
+//			else
+//				riga1 = "Time : " + generation + " ";
 
-				if (!(EnvConstant.FIRST_ORGANISM_WINNER == null)) {
-					int idx = ((Organism) EnvConstant.FIRST_ORGANISM_WINNER).genome.genome_id;
-
-					if (win)
-						riga1 = "Time : " + generation + " genome (id=" + idx
-								+ ") is Current CHAMPION - WINNER ";
-					else
-						riga1 = "Time : " + generation + " genome (id=" + idx
-								+ ") is Current CHAMPION ";
-				}
-
-				if (!(EnvConstant.CURR_ORGANISM_CHAMPION == null)) {
-//					drawGraph((Organism) EnvConstant.CURR_ORGANISM_CHAMPION,
-//							" ", mappa_graph_curr);
-				}
-			}
-
-			v1_species.add(new Double(generation));
-			v1_species.add(new Double(pop.getSpecies().size()));
-
-			v1_fitness.add(new Double(generation));
-			v1_fitness.add(new Double(pop.getHighest_fitness()));
-
-			v1_fitness_win.add(new Double(generation));
-			v1_fitness_win.add(new Double(EnvConstant.MAX_WINNER_FITNESS));
-
-			if (win)
-				riga1 = "Time : " + generation + " found WINNER ! ";
-			else
-				riga1 = "Time : " + generation + " ";
-
+			System.out.println(EnvConstant.MAX_WINNER_FITNESS);
 			if (win) {
 				return true;
 			} else

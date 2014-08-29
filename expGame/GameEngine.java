@@ -330,6 +330,10 @@ public class GameEngine {
 		return p;
 	}
 	
+	public int getNf() {
+		return nf;
+	}
+
 	public double [][] getMap() {
 		return map.clone();
 	}

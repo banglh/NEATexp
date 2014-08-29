@@ -3,9 +3,9 @@
 ;  is a XOR simulation with input from file
 ;data_from_file   Y
 data_from_class Y
-data_input       nogui.bin_inp
-data_target      nogui.xor_out
-class_compute_fitness nogui.xor_fit
+data_input       nogui.game_inp
+data_target      nogui.game_out
+class_compute_fitness nogui.game_fit
 start_from_genome Y
 genome_file     genome
 ;start_from_random_population Y

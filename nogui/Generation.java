@@ -15,8 +15,12 @@ import jneat.*;
 import jNeatCommon.*;
 
 import java.text.*;
+
 import jGraph.*;
+
 import java.lang.reflect.*;
+
+import expGame.ANNController;
 import log.*;
 
 public class Generation {
@@ -155,7 +159,7 @@ public class Generation {
 		lookupThread.start();
 	}
 
-	//  "stop" function
+	// "stop" function
 	public void stop() {
 		EnvConstant.FORCE_RESTART = false;
 		EnvConstant.STOP_EPOCH = false;
@@ -165,7 +169,7 @@ public class Generation {
 		logger.sendToStatus("READY");
 	}
 
-	//  "start" function
+	// "start" function
 	public void start() {
 		EnvConstant.FORCE_RESTART = false;
 		EnvConstant.STOP_EPOCH = false;
@@ -176,7 +180,7 @@ public class Generation {
 		logger.sendToStatus("READY");
 	}
 
-	//  "start form last" function
+	// "start form last" function
 	public void startFromLast() {
 		EnvConstant.FORCE_RESTART = false;
 		EnvConstant.STOP_EPOCH = false;
@@ -188,12 +192,12 @@ public class Generation {
 		logger.sendToStatus("READY");
 	}
 
-	//  "exit" function
+	// "exit" function
 	public void exit() {
 		System.exit(0);
 	}
 
-	public boolean startNeat() {	// TODO
+	public boolean startNeat() { //
 		boolean rc = false;
 		String curr_name_pop_specie = null;
 
@@ -225,34 +229,36 @@ public class Generation {
 			ObjClass_fit = Class_fit.newInstance();
 
 			// read max Fitness possible
-			Method_fit = Class_fit.getMethod("getMaxFitness", null);		// TODO
+			Method_fit = Class_fit.getMethod("getMaxFitness", null); //
 			ObjRet_fit = Method_fit.invoke(ObjClass_fit, null);
 			EnvConstant.MAX_FITNESS = Double.parseDouble(ObjRet_fit.toString());
 
-			if (EnvConstant.TYPE_OF_SIMULATION == EnvConstant.SIMULATION_FROM_CLASS) {		// TODO program go into this case
-
+			if (EnvConstant.TYPE_OF_SIMULATION == EnvConstant.SIMULATION_FROM_CLASS) {
 				// data input
 				//
-				Class_inp = Class.forName(EnvConstant.DATA_INP);	// TODO
+				Class_inp = Class.forName(EnvConstant.DATA_INP); //
 				ObjClass_inp = Class_inp.newInstance();
 				Method_inp = Class_inp.getMethod("getNumUnit", null);
 				ObjRet_inp = Method_inp.invoke(ObjClass_inp, null);
-				EnvConstant.NR_UNIT_INPUT = Integer.parseInt(ObjRet_inp.toString());
+				EnvConstant.NR_UNIT_INPUT = Integer.parseInt(ObjRet_inp
+						.toString());
 
 				// number of samples
 				//
-				Method_inp = Class_inp.getMethod("getNumSamples", null); // TODO
+				Method_inp = Class_inp.getMethod("getNumSamples", null); //
 				ObjRet_inp = Method_inp.invoke(ObjClass_inp, null);
-				EnvConstant.NUMBER_OF_SAMPLES = Integer.parseInt(ObjRet_inp.toString());
+				EnvConstant.NUMBER_OF_SAMPLES = Integer.parseInt(ObjRet_inp
+						.toString());
 
 				// data output
 				//
 
-				Class_tgt = Class.forName(EnvConstant.DATA_OUT); // TODO
+				Class_tgt = Class.forName(EnvConstant.DATA_OUT); //
 				ObjClass_tgt = Class_tgt.newInstance();
 				Method_tgt = Class_tgt.getMethod("getNumUnit", null);
 				ObjRet_tgt = Method_tgt.invoke(ObjClass_tgt, null);
-				EnvConstant.NR_UNIT_OUTPUT = Integer.parseInt(ObjRet_tgt.toString());
+				EnvConstant.NR_UNIT_OUTPUT = Integer.parseInt(ObjRet_tgt
+						.toString());
 
 			}
 
@@ -413,24 +419,24 @@ public class Generation {
 
 				// start ............
 				//
-				for (gen = 1; gen <= EnvConstant.NUMBER_OF_EPOCH; gen++) {	// TODO start neat
+				for (gen = 1; gen <= EnvConstant.NUMBER_OF_EPOCH; gen++) { // start
+																			// neat
 					// curr_name_pop_specie = EnvConstant.PREFIX_SPECIES_FILE +
 					// fmt5.format(gen);
 					curr_name_pop_specie = EnvConstant.PREFIX_SPECIES_FILE;
 					//
 					EnvConstant.SUPER_WINNER_ = false;
-					boolean esito = epoch(u_neat, u_pop, gen,
-							curr_name_pop_specie);
-					logger.sendToStatus(" running generation ->" + gen);
+					if (EnvConstant.RUN_EXPERIMENTS)
+						epochExp(u_neat, u_pop, gen, curr_name_pop_specie);
+					else
+						epoch(u_neat, u_pop, gen, curr_name_pop_specie);
 
+					logger.sendToStatus(" running generation ->" + gen);
 					if (EnvConstant.STOP_EPOCH)
 						break;
-
 				}
-
 				if (EnvConstant.STOP_EPOCH)
 					break;
-
 			}
 
 			// before exit save last population
@@ -440,10 +446,7 @@ public class Generation {
 					+ EnvRoutine
 							.getJneatFileData(EnvConstant.NAME_CURR_POPULATION));
 			logger.sendToLog(" generation:  READY for other request");
-
-		}
-
-		catch (Throwable e1) {
+		} catch (Throwable e1) {
 			logger.sendToLog(" error in generation.startNeat() " + e1);
 		}
 
@@ -451,7 +454,6 @@ public class Generation {
 
 		logger.sendToStatus("READY");
 		return true;
-
 	}
 
 	public void setLog(HistoryLog _log) {
@@ -483,17 +485,17 @@ public class Generation {
 
 		// System.out.print("\n evaluate.step 1 ");
 
-		double in[] = null;	// TODO
+		double in[] = null; //
 		in = new double[EnvConstant.NR_UNIT_INPUT + 1];
 
 		// setting bias
 
 		in[EnvConstant.NR_UNIT_INPUT] = 1.0;
 
-		double out[][] = null;	// TODO
+		double out[][] = null; //
 		out = new double[EnvConstant.NUMBER_OF_SAMPLES][EnvConstant.NR_UNIT_OUTPUT];
 
-		double tgt[][] = null;	// TODO
+		double tgt[][] = null; //
 		tgt = new double[EnvConstant.NUMBER_OF_SAMPLES][EnvConstant.NR_UNIT_OUTPUT];
 
 		Integer ns = new Integer(EnvConstant.NUMBER_OF_SAMPLES);
@@ -774,8 +776,8 @@ public class Generation {
 				System.exit(8);
 			}
 
-			organism.setFitness(fit_dyn);	// TODO
-			organism.setError(err_dyn);		// TODO
+			organism.setFitness(fit_dyn); //
+			organism.setError(err_dyn); //
 		}
 
 		else {
@@ -785,12 +787,12 @@ public class Generation {
 		}
 
 		if (win_dyn == 1.0) {
-			organism.setWinner(true);	// TODO
+			organism.setWinner(true); //
 			return true;
 		}
 
 		if (win_dyn == 2.0) {
-			organism.setWinner(true);	// TODO
+			organism.setWinner(true); //
 			EnvConstant.SUPER_WINNER_ = true;
 			return true;
 		}
@@ -800,18 +802,41 @@ public class Generation {
 
 	}
 
+	public boolean evaluateExp(Organism organism, boolean isBest) {
+		double fit_dyn = 0.0;
+		double err_dyn = 0.0;
+
+		// create new ANNController and plug to game engine for evaluation
+		ANNController controller = new ANNController();
+		controller.setOrganism(organism);
+		if (isBest)
+			fit_dyn = Experiment.ge.evaluate(controller,
+					EnvConstant.BEST_EVALUATION_RUNS);
+		else
+			fit_dyn = Experiment.ge.evaluate(controller,
+					EnvConstant.EVALUATION_RUNS);
+		err_dyn = EnvConstant.MAX_FITNESS - fit_dyn;
+
+		// set fitness
+		organism.setFitness(fit_dyn);
+		organism.setError(err_dyn);
+		organism.setWinner(false);
+
+		return false;
+	}
+
 	public boolean epoch(Neat _neat, Population pop, int generation,
 			String filename) {
 
-		// TODO
+		//
 		String winner_prefix = EnvConstant.PREFIX_WINNER_FILE;
 		String riga1 = null;
 		boolean esito = false;
 		boolean win = false;
 		Genome _genome_win = null;
 
-//		Document doc2 = textPane2.getDocument();
-//		String ckx = ck_group.getSelection().getActionCommand();
+		// Document doc2 = textPane2.getDocument();
+		// String ckx = ck_group.getSelection().getActionCommand();
 
 		if (generation == 1) {
 			v1_fitness_win = new Vector(1, 0);
@@ -920,50 +945,99 @@ public class Generation {
 			// wait an epoch and make a reproduction of the best species
 			//
 
-			pop.epoch(generation);	// TODO
+			pop.epoch(generation); //
 
-//			if (!EnvConstant.REPORT_SPECIES_TESTA.equalsIgnoreCase("")) {
-//				if (win)
-//					logger.sendToLog(" generation:    This specie contains the  << WINNER >> ");
-//
-//				if (!(EnvConstant.FIRST_ORGANISM_WINNER == null)) {
-//					int idx = ((Organism) EnvConstant.FIRST_ORGANISM_WINNER).genome.genome_id;
-//
-//					if (win)
-//						riga1 = "Time : " + generation + " genome (id=" + idx
-//								+ ") is Current CHAMPION - WINNER ";
-//					else
-//						riga1 = "Time : " + generation + " genome (id=" + idx
-//								+ ") is Current CHAMPION ";
-//				}
-//
-//				if (!(EnvConstant.CURR_ORGANISM_CHAMPION == null)) {
-////					drawGraph((Organism) EnvConstant.CURR_ORGANISM_CHAMPION,
-////							" ", mappa_graph_curr);
-//				}
-//			}
-//
-//			v1_species.add(new Double(generation));
-//			v1_species.add(new Double(pop.getSpecies().size()));
-//
-//			v1_fitness.add(new Double(generation));
-//			v1_fitness.add(new Double(pop.getHighest_fitness()));
-//
-//			v1_fitness_win.add(new Double(generation));
-//			v1_fitness_win.add(new Double(EnvConstant.MAX_WINNER_FITNESS));
-//
-//			if (win)
-//				riga1 = "Time : " + generation + " found WINNER ! ";
-//			else
-//				riga1 = "Time : " + generation + " ";
+			// if (!EnvConstant.REPORT_SPECIES_TESTA.equalsIgnoreCase("")) {
+			// if (win)
+			// logger.sendToLog(" generation:    This specie contains the  << WINNER >> ");
+			//
+			// if (!(EnvConstant.FIRST_ORGANISM_WINNER == null)) {
+			// int idx = ((Organism)
+			// EnvConstant.FIRST_ORGANISM_WINNER).genome.genome_id;
+			//
+			// if (win)
+			// riga1 = "Time : " + generation + " genome (id=" + idx
+			// + ") is Current CHAMPION - WINNER ";
+			// else
+			// riga1 = "Time : " + generation + " genome (id=" + idx
+			// + ") is Current CHAMPION ";
+			// }
+			//
+			// if (!(EnvConstant.CURR_ORGANISM_CHAMPION == null)) {
+			// // drawGraph((Organism) EnvConstant.CURR_ORGANISM_CHAMPION,
+			// // " ", mappa_graph_curr);
+			// }
+			// }
+			//
+			// v1_species.add(new Double(generation));
+			// v1_species.add(new Double(pop.getSpecies().size()));
+			//
+			// v1_fitness.add(new Double(generation));
+			// v1_fitness.add(new Double(pop.getHighest_fitness()));
+			//
+			// v1_fitness_win.add(new Double(generation));
+			// v1_fitness_win.add(new Double(EnvConstant.MAX_WINNER_FITNESS));
+			//
+			// if (win)
+			// riga1 = "Time : " + generation + " found WINNER ! ";
+			// else
+			// riga1 = "Time : " + generation + " ";
 
 			System.out.println(EnvConstant.MAX_WINNER_FITNESS);
 			if (win) {
 				return true;
 			} else
 				return false;
+		} catch (Exception e) {
+			System.out.print("\n exception in generation.epoch ->" + e);
+			System.exit(12);
+			return false;
 		}
-		catch (Exception e) {
+	}
+
+	public boolean epochExp(Neat _neat, Population pop, int generation,
+			String filename) {
+		boolean esito = false;
+
+		try {
+			// Evaluate each organism if exist the winner.........
+			// flag and store only the first winner
+			Iterator itr_organism;
+			itr_organism = pop.organisms.iterator();
+
+			double bestFit = Double.MIN_VALUE;
+			Organism bestOrganism = null;
+			while (itr_organism.hasNext()) {
+				// point to organism
+				Organism _organism = ((Organism) itr_organism.next());
+
+				// evaluate
+				if (EnvConstant.RUN_EXPERIMENTS)
+					esito = evaluateExp(_organism, false);
+				else
+					esito = evaluate(_organism);
+
+				if (bestFit < _organism.getFitness()) {
+					bestFit = _organism.getFitness();
+					bestOrganism = _organism;
+				}
+			}
+			System.out.println(evaluateExp(bestOrganism, true));
+
+			// compute average and max fitness for each species
+			Iterator itr_specie;
+			itr_specie = pop.species.iterator();
+			while (itr_specie.hasNext()) {
+				Species _specie = ((Species) itr_specie.next());
+				_specie.compute_average_fitness();
+				_specie.compute_max_fitness();
+			}
+
+			// wait an epoch and make a reproduction of the best species
+			pop.epoch(generation);
+
+			return false;
+		} catch (Exception e) {
 			System.out.print("\n exception in generation.epoch ->" + e);
 			System.exit(12);
 			return false;
@@ -990,8 +1064,7 @@ public class Generation {
 				}
 				xline = xFile.IOseqRead();
 			}
-		}
-		else {
+		} else {
 			System.out.print("\n error in open ->" + _file);
 			System.out.print("\n correct and re-run! \n\t Bye");
 			System.exit(8);

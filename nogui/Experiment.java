@@ -23,8 +23,19 @@ public class Experiment {
 		
 		// initialize experiment
 		Experiment exp = new Experiment();
+		
+		// inititalize game
 		exp.initGame(s, chi, d, p);
+
 		// TODO create new genome file
+		
+		// update classes and constants
+		game_inp.INPUT_NUM = ge.getNf();
+		game_out.OUTPUT_NUM = 2;
+		game_fit.MAX_FITNESS = 1.0;
+		EnvConstant.RUN_EXPERIMENTS = true;
+		EnvConstant.EVALUATION_RUNS = 1000;
+		EnvConstant.BEST_EVALUATION_RUNS = 10000;
 		
 		exp.run();
 	}

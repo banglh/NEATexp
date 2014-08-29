@@ -1,24 +1,39 @@
 package nogui;
 
+import expGame.GameEngine;
 import jNeatCommon.EnvConstant;
 import log.*;
 
-public class Main {
+public class Experiment {
 
 	private Parameter a_parameter;
 	private Session a_session;
 	private Generation a_generation;
 	protected HistoryLog logger;
 	
+	// for running experiments
+	public static GameEngine ge;
+	
 	public static void main(String [] args) {
-		Main engine = new Main();
-		engine.run();
+		// game parameters
+		int s = 5;
+		double chi = 0.2;
+		double d = 0.2;
+		double p = 0.2;
+		
+		// initialize experiment
+		Experiment exp = new Experiment();
+		exp.initGame(s, chi, d, p);
+		// TODO create new genome file
+		
+		exp.run();
 	}
 	
-	public Main() {
+	public Experiment() {
 		a_parameter = new Parameter();
 		a_session = new Session();
 		a_generation = new Generation();
+		ge = null;
 		
 		logger = new HistoryLog();
 
@@ -48,5 +63,11 @@ public class Main {
 		
 		// run neat
 		a_generation.start();
+	}
+	
+	// init game
+	public void initGame(int s, double chi, double d, double p) {
+		ge = new GameEngine(s, chi, d, p);
+		ge.initGame();
 	}
 }

@@ -155,7 +155,7 @@ public class Generation {
 		lookupThread.start();
 	}
 
-	// TODO "stop" function
+	//  "stop" function
 	public void stop() {
 		EnvConstant.FORCE_RESTART = false;
 		EnvConstant.STOP_EPOCH = false;
@@ -165,7 +165,7 @@ public class Generation {
 		logger.sendToStatus("READY");
 	}
 
-	// TODO "start" function
+	//  "start" function
 	public void start() {
 		EnvConstant.FORCE_RESTART = false;
 		EnvConstant.STOP_EPOCH = false;
@@ -176,7 +176,7 @@ public class Generation {
 		logger.sendToStatus("READY");
 	}
 
-	// TODO "start form last" function
+	//  "start form last" function
 	public void startFromLast() {
 		EnvConstant.FORCE_RESTART = false;
 		EnvConstant.STOP_EPOCH = false;
@@ -188,12 +188,12 @@ public class Generation {
 		logger.sendToStatus("READY");
 	}
 
-	// TODO "exit" function
+	//  "exit" function
 	public void exit() {
 		System.exit(0);
 	}
 
-	public boolean startNeat() {
+	public boolean startNeat() {	// TODO
 		boolean rc = false;
 		String curr_name_pop_specie = null;
 
@@ -225,37 +225,34 @@ public class Generation {
 			ObjClass_fit = Class_fit.newInstance();
 
 			// read max Fitness possible
-			Method_fit = Class_fit.getMethod("getMaxFitness", null);
+			Method_fit = Class_fit.getMethod("getMaxFitness", null);		// TODO
 			ObjRet_fit = Method_fit.invoke(ObjClass_fit, null);
 			EnvConstant.MAX_FITNESS = Double.parseDouble(ObjRet_fit.toString());
 
-			if (EnvConstant.TYPE_OF_SIMULATION == EnvConstant.SIMULATION_FROM_CLASS) {
+			if (EnvConstant.TYPE_OF_SIMULATION == EnvConstant.SIMULATION_FROM_CLASS) {		// TODO program go into this case
 
 				// data input
 				//
-				Class_inp = Class.forName(EnvConstant.DATA_INP);
+				Class_inp = Class.forName(EnvConstant.DATA_INP);	// TODO
 				ObjClass_inp = Class_inp.newInstance();
 				Method_inp = Class_inp.getMethod("getNumUnit", null);
 				ObjRet_inp = Method_inp.invoke(ObjClass_inp, null);
-				EnvConstant.NR_UNIT_INPUT = Integer.parseInt(ObjRet_inp
-						.toString());
+				EnvConstant.NR_UNIT_INPUT = Integer.parseInt(ObjRet_inp.toString());
 
 				// number of samples
 				//
-				Method_inp = Class_inp.getMethod("getNumSamples", null);
+				Method_inp = Class_inp.getMethod("getNumSamples", null); // TODO
 				ObjRet_inp = Method_inp.invoke(ObjClass_inp, null);
-				EnvConstant.NUMBER_OF_SAMPLES = Integer.parseInt(ObjRet_inp
-						.toString());
+				EnvConstant.NUMBER_OF_SAMPLES = Integer.parseInt(ObjRet_inp.toString());
 
 				// data output
 				//
 
-				Class_tgt = Class.forName(EnvConstant.DATA_OUT);
+				Class_tgt = Class.forName(EnvConstant.DATA_OUT); // TODO
 				ObjClass_tgt = Class_tgt.newInstance();
 				Method_tgt = Class_tgt.getMethod("getNumUnit", null);
 				ObjRet_tgt = Method_tgt.invoke(ObjClass_tgt, null);
-				EnvConstant.NR_UNIT_OUTPUT = Integer.parseInt(ObjRet_tgt
-						.toString());
+				EnvConstant.NR_UNIT_OUTPUT = Integer.parseInt(ObjRet_tgt.toString());
 
 			}
 
@@ -416,7 +413,7 @@ public class Generation {
 
 				// start ............
 				//
-				for (gen = 1; gen <= EnvConstant.NUMBER_OF_EPOCH; gen++) {
+				for (gen = 1; gen <= EnvConstant.NUMBER_OF_EPOCH; gen++) {	// TODO start neat
 					// curr_name_pop_specie = EnvConstant.PREFIX_SPECIES_FILE +
 					// fmt5.format(gen);
 					curr_name_pop_specie = EnvConstant.PREFIX_SPECIES_FILE;
@@ -486,17 +483,17 @@ public class Generation {
 
 		// System.out.print("\n evaluate.step 1 ");
 
-		double in[] = null;
+		double in[] = null;	// TODO
 		in = new double[EnvConstant.NR_UNIT_INPUT + 1];
 
 		// setting bias
 
 		in[EnvConstant.NR_UNIT_INPUT] = 1.0;
 
-		double out[][] = null;
+		double out[][] = null;	// TODO
 		out = new double[EnvConstant.NUMBER_OF_SAMPLES][EnvConstant.NR_UNIT_OUTPUT];
 
-		double tgt[][] = null;
+		double tgt[][] = null;	// TODO
 		tgt = new double[EnvConstant.NUMBER_OF_SAMPLES][EnvConstant.NR_UNIT_OUTPUT];
 
 		Integer ns = new Integer(EnvConstant.NUMBER_OF_SAMPLES);
@@ -777,8 +774,8 @@ public class Generation {
 				System.exit(8);
 			}
 
-			organism.setFitness(fit_dyn);
-			organism.setError(err_dyn);
+			organism.setFitness(fit_dyn);	// TODO
+			organism.setError(err_dyn);		// TODO
 		}
 
 		else {
@@ -788,12 +785,12 @@ public class Generation {
 		}
 
 		if (win_dyn == 1.0) {
-			organism.setWinner(true);
+			organism.setWinner(true);	// TODO
 			return true;
 		}
 
 		if (win_dyn == 2.0) {
-			organism.setWinner(true);
+			organism.setWinner(true);	// TODO
 			EnvConstant.SUPER_WINNER_ = true;
 			return true;
 		}
@@ -806,6 +803,7 @@ public class Generation {
 	public boolean epoch(Neat _neat, Population pop, int generation,
 			String filename) {
 
+		// TODO
 		String winner_prefix = EnvConstant.PREFIX_WINNER_FILE;
 		String riga1 = null;
 		boolean esito = false;
@@ -922,7 +920,7 @@ public class Generation {
 			// wait an epoch and make a reproduction of the best species
 			//
 
-			pop.epoch(generation);
+			pop.epoch(generation);	// TODO
 
 //			if (!EnvConstant.REPORT_SPECIES_TESTA.equalsIgnoreCase("")) {
 //				if (win)

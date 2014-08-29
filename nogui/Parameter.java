@@ -10,7 +10,7 @@ import log.*;
 
 public class Parameter {
 
-	vectTableModel modello;
+//	vectTableModel modello;
 	Neat netx;
 
 	protected HistoryLog logger;
@@ -20,7 +20,7 @@ public class Parameter {
 	 */
 	public Parameter() {
 		logger = new HistoryLog();
-		modello = new vectTableModel(new Vector());
+//		modello = new vectTableModel(new Vector());
 
 		EnvConstant.OP_SYSTEM = System.getProperty("os.name");
 		EnvConstant.OS_VERSION = System.getProperty("os.version");
@@ -31,7 +31,7 @@ public class Parameter {
 	/** bang **/
 	/* functions for the corresponding buttons in GUI version */
 
-	// TODO "Load default" function
+	// "Load default" function
 	public void loadDefault() {
 		String xret = null;
 		String name;
@@ -48,27 +48,27 @@ public class Parameter {
 		else
 			xret = new String("  *ERROR*");
 
-		modello.data.clear();
-		modello.rows = -1;
-		netx.getParam(modello);
-		modello.fireTableDataChanged();
+//		modello.data.clear();
+//		modello.rows = -1;
+//		netx.getParam(modello);
+//		modello.fireTableDataChanged();
 		logger.sendToLog(" ok file parameter " + name + " loaded!");
 		logger.sendToStatus("READY");
 	}
 
-	// TODO "Write" function
+	// "Write" function
 	public void write() {
 		String name;
 
 		name = EnvRoutine.getJneatParameter();
 		logger.sendToLog(" writing file parameter " + name + "...");
-		netx.updateParam(modello);
+//		netx.updateParam(modello);
 		netx.writeParam(name);
 		logger.sendToLog(" okay : file writed");
 		logger.sendToStatus("READY");
 	}
 
-	// TODO "Load file" function
+	// "Load file" function
 	public void loadFile(String fileName) {
 		String xret = null;
 		boolean rc = false;
@@ -85,20 +85,20 @@ public class Parameter {
 			else
 				xret = new String("  *ERROR*");
 
-			modello.data.clear();
-			modello.rows = -1;
-			netx.getParam(modello);
-			modello.fireTableDataChanged();
+//			modello.data.clear();
+//			modello.rows = -1;
+//			netx.getParam(modello);
+//			modello.fireTableDataChanged();
 			logger.sendToLog(" read of file parameter " + fileName + xret);
 			logger.sendToStatus("READY");
 		}
 	}
 
-	// TODO "Write file" function
+	// "Write file" function
 	public void writeFile(String fileName) {
 		if (fileName != null) {
 			logger.sendToLog(" writing file parameter " + fileName + "...");
-			netx.updateParam(modello);
+//			netx.updateParam(modello);
 			netx.writeParam(fileName);
 			logger.sendToLog(" okay : file writed");
 			logger.sendToStatus("READY");

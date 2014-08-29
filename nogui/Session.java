@@ -130,7 +130,7 @@ public class Session {
 		EnvConstant.OS_FILE_SEP = System.getProperty("file.separator");
 	}
 
-	// TODO convert from String array to string
+	// convert from String array to string
 	public String convertToString(String[] stringArr) {
 		String str = "";
 		for (String string : stringArr) {
@@ -163,7 +163,7 @@ public class Session {
 		return source_new;
 	}
 
-	// TODO "Load sess default" function
+	// "Load sess default" function
 	public void loadSessDefault() {
 		String nomef;
 
@@ -204,7 +204,7 @@ public class Session {
 		}
 	}
 
-	// TODO "Load sess file" function
+	//  "Load sess file" function
 	public void loadSessFile(String fileName) {
 		EnvConstant.EDIT_STATUS = 0;
 
@@ -237,7 +237,7 @@ public class Session {
 		}
 	}
 
-	// TODO "Write sess" function
+	//  "Write sess" function
 	public void writeSess() {
 		String nomef;
 
@@ -277,7 +277,7 @@ public class Session {
 
 	}
 
-	// TODO "Write sess file" function
+	//  "Write sess file" function
 	public void writeSessFile(String fileName) {
 		EnvConstant.EDIT_STATUS = 0;
 
@@ -318,7 +318,7 @@ public class Session {
 		}
 	}
 
-	// TODO "Load class fitness" function
+	//  "Load class fitness" function
 	public void loadClassFitness() {
 		logger.sendToStatus("wait...");
 		EnvConstant.EDIT_STATUS = EnvConstant.EDIT_CLASS_FIT;
@@ -330,7 +330,7 @@ public class Session {
 		logger.sendToStatus("READY");
 	}
 
-	// TODO "Load class data input" function
+	//  "Load class data input" function
 	public void loadClassDataInput() {
 		logger.sendToStatus("wait...");
 		EnvConstant.EDIT_STATUS = EnvConstant.EDIT_CLASS_INP;
@@ -342,7 +342,7 @@ public class Session {
 		logger.sendToStatus("READY");
 	}
 
-	// TODO "Load class data target" function
+	//  "Load class data target" function
 	public void loadClassDataTarget() {
 		logger.sendToStatus("wait...");
 		EnvConstant.EDIT_STATUS = EnvConstant.EDIT_CLASS_OUT;
@@ -354,7 +354,7 @@ public class Session {
 		logger.sendToStatus("READY");
 	}
 
-	// TODO "Set session file skeleton" function
+	//  "Set session file skeleton" function
 	public void setSessionFileSkeleton() {
 		logger.sendToStatus("wait...");
 		EnvConstant.EDIT_STATUS = 0;
@@ -364,7 +364,7 @@ public class Session {
 		logger.sendToStatus("READY");
 	}
 
-	// TODO "Set fitness class skeleton" function
+	//  "Set fitness class skeleton" function
 	public void setFitnessClassSkeleton() {
 		logger.sendToStatus("wait...");
 		EnvConstant.EDIT_STATUS = EnvConstant.EDIT_CLASS_FIT;
@@ -374,7 +374,7 @@ public class Session {
 		logger.sendToStatus("READY");
 	}
 
-	// TODO "Set data_inp class skeleton" function
+	//  "Set data_inp class skeleton" function
 	public void setDataInputClassSkeleton() {
 		logger.sendToStatus("wait...");
 		EnvConstant.EDIT_STATUS = EnvConstant.EDIT_CLASS_INP;
@@ -384,7 +384,7 @@ public class Session {
 		logger.sendToStatus("READY");
 	}
 
-	// TODO "Set data_tgt class skeleton" function
+	//  "Set data_tgt class skeleton" function
 	public void setDataTargetClassSkeleton() {
 		logger.sendToStatus("wait...");
 		EnvConstant.EDIT_STATUS = EnvConstant.EDIT_CLASS_OUT;
@@ -394,7 +394,7 @@ public class Session {
 		logger.sendToStatus("READY");
 	}
 
-	// TODO "check keyword" function
+	//  "check keyword" function
 	public void checkKeyword() {
 		logger.sendToStatus("wait...");
 		String[] source_new = convertToArray(sessionSetting);
@@ -404,7 +404,7 @@ public class Session {
 		logger.sendToStatus("READY");
 	}
 
-	// TODO "COMPILE" function
+	//  "COMPILE" function
 	public void compile() {
 		if (EnvConstant.EDIT_STATUS == EnvConstant.EDIT_CLASS_FIT) {
 			if (curr_fitness_class != null) {
@@ -602,7 +602,6 @@ public class Session {
 							} else
 								done = true;
 						}
-
 					}
 				}
 

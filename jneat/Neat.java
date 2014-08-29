@@ -288,20 +288,15 @@ public class Neat {
 	}
 
 	public static boolean readParam(String xNomeFile) {
-
 		boolean ret = true;
 		String xline;
 		IOseq xFile;
 		StringTokenizer st;
 		String s1;
-		String s2;
-		Object m1;
 
 		xFile = new IOseq(xNomeFile);
 		ret = xFile.IOseqOpenR();
-		if (ret)
-
-		{
+		if (ret) {
 			try {
 				Class c = Class.forName("jneat.Neat");
 				Field[] fieldlist = c.getDeclaredFields();
@@ -332,18 +327,14 @@ public class Neat {
 						}
 					}
 				}
-
 			} catch (Throwable e) {
 				System.err.println(e);
 			}
-
 			xFile.IOseqCloseR();
-
 		}
 
 		else
 			System.err.print("\n : error during open " + xNomeFile);
-
 		return ret;
 	}
 

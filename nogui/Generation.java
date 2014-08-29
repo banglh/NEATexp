@@ -802,19 +802,16 @@ public class Generation {
 
 	}
 
-	public boolean evaluateExp(Organism organism, boolean isBest) {
+	public boolean evaluateExp(Organism organism) {
 		double fit_dyn = 0.0;
 		double err_dyn = 0.0;
 
 		// create new ANNController and plug to game engine for evaluation
 		ANNController controller = new ANNController();
 		controller.setOrganism(organism);
-		if (isBest)
-			fit_dyn = Experiment.ge.evaluate(controller,
-					EnvConstant.BEST_EVALUATION_RUNS);
-		else
-			fit_dyn = Experiment.ge.evaluate(controller,
-					EnvConstant.EVALUATION_RUNS);
+
+		fit_dyn = Experiment.ge.evaluate(controller,
+				EnvConstant.EVALUATION_RUNS);
 		err_dyn = EnvConstant.MAX_FITNESS - fit_dyn;
 
 		// set fitness
@@ -825,6 +822,18 @@ public class Generation {
 		return false;
 	}
 
+	public double evaluateBestOrganism(Organism organism) {
+		double fit_dyn = 0.0;
+
+		// create new ANNController and plug to game engine for evaluation
+		ANNController controller = new ANNController();
+		controller.setOrganism(organism);
+
+		fit_dyn = Experiment.ge.evaluate(controller,
+				EnvConstant.BEST_EVALUATION_RUNS);
+
+		return fit_dyn;
+	}
 	public boolean epoch(Neat _neat, Population pop, int generation,
 			String filename) {
 
@@ -1013,7 +1022,7 @@ public class Generation {
 
 				// evaluate
 				if (EnvConstant.RUN_EXPERIMENTS)
-					esito = evaluateExp(_organism, false);
+					esito = evaluateExp(_organism);
 				else
 					esito = evaluate(_organism);
 
@@ -1022,7 +1031,7 @@ public class Generation {
 					bestOrganism = _organism;
 				}
 			}
-			System.out.println(evaluateExp(bestOrganism, true));
+			System.out.println(evaluateBestOrganism(bestOrganism));
 
 			// compute average and max fitness for each species
 			Iterator itr_specie;

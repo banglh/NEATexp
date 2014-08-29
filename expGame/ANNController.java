@@ -29,7 +29,7 @@ public class ANNController extends Controller{
 		inputs[rbfVals.length] = 1.0;
 		
 		// plug input values to network
-		nn.load_sensors(rbfVals);
+		nn.load_sensors(inputs);	// TODO error array index out of bound here
 		
 		// calculate output value
 		nn.activate();

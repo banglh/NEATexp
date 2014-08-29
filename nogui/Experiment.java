@@ -18,9 +18,9 @@ public class Experiment {
 	public static void main(String [] args) {
 		// game parameters
 		int s = 5;
-		double chi = 0.2;
-		double d = 0.2;
-		double p = 0.2;
+		double chi = 1;
+		double d = 0;
+		double p = 0;
 		
 		// initialize experiment
 		Experiment exp = new Experiment();

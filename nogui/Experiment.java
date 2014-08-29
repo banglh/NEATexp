@@ -1,5 +1,6 @@
 package nogui;
 
+import jneat.Genome;
 import expGame.GameEngine;
 import jNeatCommon.EnvConstant;
 import log.*;
@@ -26,17 +27,20 @@ public class Experiment {
 		
 		// inititalize game
 		exp.initGame(s, chi, d, p);
-
-		// TODO create new genome file
 		
 		// update classes and constants
 		game_inp.INPUT_NUM = ge.getNf();
-		game_out.OUTPUT_NUM = 2;
+		game_out.OUTPUT_NUM = 1;
 		game_fit.MAX_FITNESS = 1.0;
 		EnvConstant.RUN_EXPERIMENTS = true;
 		EnvConstant.EVALUATION_RUNS = 1000;
 		EnvConstant.BEST_EVALUATION_RUNS = 10000;
 		
+		// TODO create new genome file
+		String fn = EnvConstant.JNEAT_DIR + "\\data\\genome";
+		Genome.createNewGenomeFile(fn, game_inp.INPUT_NUM, game_out.OUTPUT_NUM);
+		
+		// run experiment
 		exp.run();
 	}
 	

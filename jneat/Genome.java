@@ -2960,6 +2960,80 @@ public class Genome extends Neat {
 		}
 
 		xFile.IOseqCloseW();
+	}
+
+	public static void createNewGenomeFile(String fileName, int inpNum,
+			int outNum) {
+		int geneNum = (inpNum + 1) * outNum;
+
+		IOseq xFile;
+
+		xFile = new IOseq(fileName);
+		xFile.IOseqOpenW(false);
+
+		try {
+			// String riga = "genomestart  " + genome_id;
+			// xFile.IOseqWrite(riga);
+			// start line
+			String str = "genomestart  1";
+			xFile.IOseqWrite(str);
+
+			// trait lines
+			for (int i = 1; i <= 3; i++) {
+				str = String.format("trait %d %.1f 0 0 0 0 0 0 0", i, i * 0.1);
+				xFile.IOseqWrite(str);
+			}
+
+			// node lines
+			int nodeId;
+			// input nodes
+			for (nodeId = 1; nodeId <= inpNum; nodeId++) {
+				str = String.format("node %d 0 1 1", nodeId);
+				xFile.IOseqWrite(str);
+			}
+			// bias node
+			str = String.format("node %d 0 1 3", inpNum + 1);
+			xFile.IOseqWrite(str);
+			// output node
+			for (nodeId = inpNum + 2; nodeId <= inpNum + outNum + 1; nodeId++) {
+				str = String.format("node %d 0 0 2", nodeId);
+				xFile.IOseqWrite(str);
+			}
+
+			// gene lines
+			int geneId = 0;
+			for (int o = inpNum + 2; o <= inpNum + outNum + 1; o++) {
+				for (int i = 1; i <= inpNum + 1; i++) {
+					geneId += 1;
+					str = String.format("gene %d %d %d 0.0 0 %d 0 1", geneId, i, o, geneId);
+					xFile.IOseqWrite(str);
+				}
+			}
+			
+			// end line
+			str = "genomeend 1";
+			xFile.IOseqWrite(str);
+		} catch (Throwable e) {
+			System.err.println(e);
+		}
+
+		xFile.IOseqCloseW();
+	}
+
+	public static void main(String args[]) {
+		/**
+		 * 
+		 * Creation of a new random genome with : new_id = numerical
+		 * identification of genome i = number of input nodes o = number of
+		 * output nodes n = number of hidden nodes nmax = number max of node
+		 * this number must be >= (i + n + o) r = the network can have a nodes
+		 * recurrent ? linkprob = probability of a link from nodes ( must be in
+		 * interval ]0,1[);
+		 */
+		int i = 6;
+		int o = 4;
+		String fileName = "myGenome";
+		Genome.createNewGenomeFile(fileName, i, o);
 
 	}
 }

@@ -1,5 +1,8 @@
 package expGame;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,15 +24,12 @@ public class GameEngine {
 	// game data
 	private double[][] map; // game board
 	private int[][] RBFsPos; // positions of radial basis function centers
-//	private Map<int[], double[]> RBFsTable;
 	private Map<Position, RBFs> RBFsTable;
-//	private int[] agentInitPos; // initial agent's position
 	private Position agentInitPos; // initial agent's position
 	private double bestSolutionReward;
 	private double worstSolutionReward;
 
 	// game status
-//	private int[] agentCurPos; // current position of agent
 	private Position agentCurPos; // current position of agent
 	private double totalReward; // current total reward
 	private boolean gameEnded = false; // game ended or not
@@ -70,7 +70,8 @@ public class GameEngine {
 
 		// calculate the best and the worst solutions
 		bestSolutionReward = calculateBestSolution(agentInitPos.getCoordinate());
-		worstSolutionReward = calculateWorstSolution(agentInitPos.getCoordinate());
+		worstSolutionReward = calculateWorstSolution(agentInitPos
+				.getCoordinate());
 
 		agentCurPos.setCoordinate(agentInitPos.getCoordinate());
 		totalReward = 0.0;
@@ -111,7 +112,7 @@ public class GameEngine {
 			realDirection = (NORTH + EAST) - expectedDirection;
 
 		// moving
-		int [] curPos = agentCurPos.getCoordinate();
+		int[] curPos = agentCurPos.getCoordinate();
 		switch (realDirection) {
 		case NORTH:
 			// update current agent's location
@@ -147,7 +148,7 @@ public class GameEngine {
 			while (!gameEnded) {
 				// get RBF values
 				RBFs curRBFs = getCurrentRBFs();
-				double [] rbfs = curRBFs.getRBFs();
+				double[] rbfs = curRBFs.getRBFs();
 
 				// get expected direction from controller
 				int expectedDirection = -1;
@@ -170,6 +171,58 @@ public class GameEngine {
 				/ (bestSolutionReward - worstSolutionReward);
 
 		return avgRewardNorm;
+	}
+
+	// function to print game settings to file
+	/** format **
+	 * + s, chi, d, p, nf, sdRBF
+	 * + map
+	 * + RBFsPos
+	 * + agentInitPos (coordinate)
+	 */
+	public boolean saveGame(String fileName) {
+		boolean success = true;
+
+		try {
+			// create file
+			FileWriter f = new FileWriter(fileName);
+			BufferedWriter bw = new BufferedWriter(f);
+			
+			// write s, chi, d, p, nf, sdRBF
+			String str = String.format("%d,%f,%f,%f,%d,%f\n", s, chi, d, p, nf, sdRBF);
+			bw.write(str);
+			
+			// write map
+			for (int row = 0; row < s; row++) {
+				str = "";
+				for (int col = 0; col < s; col++) {
+					if (col == s - 1)
+						str += String.format("%f\n", map[row][col]);
+					else
+						str += String.format("%f,", map[row][col]);
+				}
+				bw.write(str);
+			}
+			
+			// write RBFsPos
+			for (int i = 0; i < nf; i++) {
+				str = String.format("%d,%d\n", RBFsPos[i][0], RBFsPos[i][1]);
+				bw.write(str);
+			}
+			
+			// write agentInitPos
+			str = String.format("%d,%d\n", agentInitPos.getCoordinate()[0], agentInitPos.getCoordinate()[1]);
+			bw.write(str);
+			
+			// close file
+			bw.close();
+		} catch (Exception e) {
+			System.out.println(e);
+			success = false;
+			return success;
+		}
+		
+		return success;
 	}
 
 	private RBFs getCurrentRBFs() {
@@ -288,7 +341,7 @@ public class GameEngine {
 	private void initAgentPos() {
 		int row = rand.nextInt(s - 1) + 1; // from 1 to s-1
 		int col = rand.nextInt(s - 1); // from 0 to s-2
-		int [] coor = {row, col};
+		int[] coor = { row, col };
 		agentInitPos.setCoordinate(coor);
 	}
 
@@ -299,10 +352,10 @@ public class GameEngine {
 			for (int col = 0; col < s; col++) {
 				int[] location = { row, col };
 				double[] rbfs = getRBFValues(location);
-				
+
 				Position pos = new Position(location);
 				RBFs rbfsObj = new RBFs(rbfs);
-				
+
 				RBFsTable.put(pos, rbfsObj);
 			}
 		}
@@ -413,11 +466,13 @@ public class GameEngine {
 
 		// Agent's initial position
 		System.out.println("+ Agent's initial location");
-		System.out.printf("[%d][%d]\n", agentInitPos.getCoordinate()[0], agentInitPos.getCoordinate()[1]);
+		System.out.printf("[%d][%d]\n", agentInitPos.getCoordinate()[0],
+				agentInitPos.getCoordinate()[1]);
 
 		// Agent's current position
 		System.out.println("+ Agent's current location");
-		System.out.printf("[%d][%d]\n", agentCurPos.getCoordinate()[0], agentCurPos.getCoordinate()[1]);
+		System.out.printf("[%d][%d]\n", agentCurPos.getCoordinate()[0],
+				agentCurPos.getCoordinate()[1]);
 
 		// the best and the worst reward
 		System.out.printf("Best Reward: %f\n", bestSolutionReward);
@@ -433,20 +488,11 @@ public class GameEngine {
 		GameEngine ge = new GameEngine(s, chi, d, p);
 		ge.initGame();
 		ge.printGameInfo();
+		
+		String fn = "game.txt";
+		boolean success = ge.saveGame(fn);
+		System.out.println(success);
+		
 
-		int[] location = {2, 3};
-		Position pos = new Position(location);
-
-		if (ge.RBFsTable.containsKey(pos)) {
-			System.out.println("ok");
-		} else
-			System.out.println("error");
-
-		Iterator it = ge.RBFsTable.entrySet().iterator();
-		while (it.hasNext()) {
-			Map.Entry pairs = (Map.Entry) it.next();
-			System.out.println(pairs.getKey() + " = " + pairs.getValue());
-			it.remove(); // avoids a ConcurrentModificationException
-		}
 	}
 }

@@ -1,7 +1,9 @@
 package expGame;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -18,7 +20,7 @@ public class GameEngine {
 	private int s; // board size
 	private double chi, d, p; // chi, d, p params
 	private int nf; // number of radial basis functions
-	public double sdRBF; // standard deviation of radial basis functions
+	private double sdRBF; // standard deviation of radial basis functions
 	private Random rand;
 
 	// game data
@@ -174,11 +176,8 @@ public class GameEngine {
 	}
 
 	// function to print game settings to file
-	/** format **
-	 * + s, chi, d, p, nf, sdRBF
-	 * + map
-	 * + RBFsPos
-	 * + agentInitPos (coordinate)
+	/**
+	 * format ** + s, chi, d, p + map + RBFsPos + agentInitPos (coordinate)
 	 */
 	public boolean saveGame(String fileName) {
 		boolean success = true;
@@ -187,11 +186,11 @@ public class GameEngine {
 			// create file
 			FileWriter f = new FileWriter(fileName);
 			BufferedWriter bw = new BufferedWriter(f);
-			
+
 			// write s, chi, d, p, nf, sdRBF
-			String str = String.format("%d,%f,%f,%f,%d,%f\n", s, chi, d, p, nf, sdRBF);
+			String str = String.format("%d,%f,%f,%f\n", s, chi, d, p);
 			bw.write(str);
-			
+
 			// write map
 			for (int row = 0; row < s; row++) {
 				str = "";
@@ -203,17 +202,18 @@ public class GameEngine {
 				}
 				bw.write(str);
 			}
-			
+
 			// write RBFsPos
 			for (int i = 0; i < nf; i++) {
 				str = String.format("%d,%d\n", RBFsPos[i][0], RBFsPos[i][1]);
 				bw.write(str);
 			}
-			
+
 			// write agentInitPos
-			str = String.format("%d,%d\n", agentInitPos.getCoordinate()[0], agentInitPos.getCoordinate()[1]);
+			str = String.format("%d,%d\n", agentInitPos.getCoordinate()[0],
+					agentInitPos.getCoordinate()[1]);
 			bw.write(str);
-			
+
 			// close file
 			bw.close();
 		} catch (Exception e) {
@@ -221,8 +221,134 @@ public class GameEngine {
 			success = false;
 			return success;
 		}
-		
+
 		return success;
+	}
+
+	// TODO function to load game settings from file
+	public static GameEngine loadGame(String fileName) {
+		GameEngine ge;
+		int s;
+		double chi, d, p;
+
+		try {
+			// open file
+			FileReader fr = new FileReader(fileName);
+			BufferedReader br = new BufferedReader(fr);
+
+			// read s, chi, d, p
+			String str = br.readLine();
+			String[] strArr = str.split(",");
+			s = Integer.parseInt(strArr[0]);
+			chi = Double.parseDouble(strArr[1]);
+			d = Double.parseDouble(strArr[2]);
+			p = Double.parseDouble(strArr[3]);
+			ge = new GameEngine(s, chi, d, p);
+
+			// read map
+			for (int row = 0; row < ge.get_s(); row++) {
+				str = br.readLine();
+				strArr = str.split(",");
+				for (int col = 0; col < ge.get_s(); col++) {
+					// set value for map[row][col]
+					if (!ge.setMapValue(row, col,
+							Double.parseDouble(strArr[col]))) {
+						throw new Exception("invalid reward for map grid");
+					}
+				}
+			}
+
+			// read RBFsPos
+			for (int i = 0; i < ge.getNf(); i++) {
+				str = br.readLine();
+				strArr = str.split(",");
+				if (!ge.setRBFPos(i, Integer.parseInt(strArr[0]),
+						Integer.parseInt(strArr[1])))
+					throw new Exception(
+							"invalid row/col valud for RBF position");
+			}
+
+			// read initial agent location
+			str = br.readLine();
+			strArr = str.split(",");
+			if (!ge.setAgentInitPos(Integer.parseInt(strArr[0]),
+					Integer.parseInt(strArr[1])))
+				throw new Exception("invalid initial agent position");
+
+			// calculate RBFsTable
+			ge.initRBFsTable();
+
+			// calculate the best and the worst solution
+			ge.setMaxMinRewards();
+			
+			ge.setInitialized();
+
+			// close file
+			br.close();
+
+		} catch (Exception e) {
+			System.out.println(e);
+			return null;
+		}
+		return ge;
+	}
+
+	// calculate the best and the worst solutions of current settings
+	public void setMaxMinRewards() {
+		bestSolutionReward = calculateBestSolution(agentInitPos.getCoordinate());
+		worstSolutionReward = calculateWorstSolution(agentInitPos.getCoordinate());
+	}
+
+	// set initial agent position
+	public boolean setAgentInitPos(int row, int col) {
+		// check if row and col are valid
+		if (row < 1 || row > s - 1)
+			return false;
+		if (col < 0 || col > s - 2)
+			return false;
+
+		int[] pos = { row, col };
+		agentInitPos.setCoordinate(pos);
+		agentCurPos.setCoordinate(pos);
+		return true;
+	}
+
+	// set BRF center
+	public boolean setRBFPos(int id, int row, int col) {
+		// check if id is valid
+		if (id < 0 || id > nf - 1)
+			return false;
+
+		// check if row and col are valid
+		if (row < 1 || row > s - 1)
+			return false;
+		if (col < 0 || col > s - 2)
+			return false;
+
+		RBFsPos[id][0] = row;
+		RBFsPos[id][1] = col;
+		return true;
+	}
+
+	// set reward for a particular grid on the game map
+	public boolean setMapValue(int row, int col, double val) {
+		// check if row and col are valid
+		if (row < 0 || row >= s)
+			return false;
+		if (col < 0 || col >= s)
+			return false;
+
+		// check if val is valid
+		if (val < 0.0 || val > 1.0)
+			return false;
+
+		map[row][col] = val;
+		return true;
+	}
+
+	// set initialized variable
+	public void setInitialized() {
+		initialized = true;
 	}
 
 	private RBFs getCurrentRBFs() {
@@ -346,7 +472,7 @@ public class GameEngine {
 	}
 
 	// function to calculate RBF values for every locations in advance
-	private void initRBFsTable() {
+	public void initRBFsTable() {
 		// produce a dictionary <location-rbfs>
 		for (int row = 0; row < s; row++) {
 			for (int col = 0; col < s; col++) {
@@ -485,14 +611,13 @@ public class GameEngine {
 		double chi = 0.4;
 		double d = 0.1;
 		double p = 0.2;
+		
 		GameEngine ge = new GameEngine(s, chi, d, p);
 		ge.initGame();
 		ge.printGameInfo();
-		
-		String fn = "game.txt";
-		boolean success = ge.saveGame(fn);
-		System.out.println(success);
-		
+		ge.saveGame("game.txt");
 
+		GameEngine g = GameEngine.loadGame("game.txt");
+		g.printGameInfo();
 	}
 }

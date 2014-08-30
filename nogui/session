@@ -14,7 +14,7 @@ population_file primitive
 ;maximum_unit    5
 ;recursion       N
 ;probability_of_connection 20
-epoch 100
+epoch 50
 activation 0
 ;prefix_genome_random genome.rnd 
 prefix_generation_file generation

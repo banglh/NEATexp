@@ -8,6 +8,8 @@ package nogui;
 //import javax.swing.event.*;
 //import javax.swing.border.*;
 import java.util.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.lang.*;
 
 //import javax.swing.text.*;
@@ -419,22 +421,37 @@ public class Generation {
 
 				// start ............
 				//
-				for (gen = 1; gen <= EnvConstant.NUMBER_OF_EPOCH; gen++) { // start
-																			// neat
-					// curr_name_pop_specie = EnvConstant.PREFIX_SPECIES_FILE +
-					// fmt5.format(gen);
-					curr_name_pop_specie = EnvConstant.PREFIX_SPECIES_FILE;
-					//
-					EnvConstant.SUPER_WINNER_ = false;
-					if (EnvConstant.RUN_EXPERIMENTS)
-						epochExp(u_neat, u_pop, gen, curr_name_pop_specie);
-					else
-						epoch(u_neat, u_pop, gen, curr_name_pop_specie);
+				try {
+					// open file to write results
+					FileWriter fw = new FileWriter(EnvConstant.RESULTS_FILE);
+					BufferedWriter bw = new BufferedWriter(fw);
 
-					logger.sendToStatus(" running generation ->" + gen);
-					if (EnvConstant.STOP_EPOCH)
-						break;
+					for (gen = 1; gen <= EnvConstant.NUMBER_OF_EPOCH; gen++) {
+						// curr_name_pop_specie =
+						// EnvConstant.PREFIX_SPECIES_FILE +
+						// fmt5.format(gen);
+						curr_name_pop_specie = EnvConstant.PREFIX_SPECIES_FILE;
+						//
+						EnvConstant.SUPER_WINNER_ = false;
+						if (EnvConstant.RUN_EXPERIMENTS) {
+							double bestFit = epochExp(u_neat, u_pop, gen, curr_name_pop_specie);
+							bw.write(String.format("%f\n", bestFit));
+							System.out.println(bestFit);
+						}
+						else
+							epoch(u_neat, u_pop, gen, curr_name_pop_specie);
+
+						logger.sendToStatus(" running generation ->" + gen);
+						if (EnvConstant.STOP_EPOCH)
+							break;
+					}
+					
+					// close result file
+					bw.close();
+				} catch (Exception e) {
+					System.out.println(e);
 				}
+
 				if (EnvConstant.STOP_EPOCH)
 					break;
 			}
@@ -834,6 +851,7 @@ public class Generation {
 
 		return fit_dyn;
 	}
+
 	public boolean epoch(Neat _neat, Population pop, int generation,
 			String filename) {
 
@@ -1004,10 +1022,8 @@ public class Generation {
 		}
 	}
 
-	public boolean epochExp(Neat _neat, Population pop, int generation,
+	public double epochExp(Neat _neat, Population pop, int generation,
 			String filename) {
-		boolean esito = false;
-
 		try {
 			// Evaluate each organism if exist the winner.........
 			// flag and store only the first winner
@@ -1021,17 +1037,19 @@ public class Generation {
 				Organism _organism = ((Organism) itr_organism.next());
 
 				// evaluate
+				// TODO the fitness of the same organism may be changed
 				if (EnvConstant.RUN_EXPERIMENTS)
-					esito = evaluateExp(_organism);
+					evaluateExp(_organism);
 				else
-					esito = evaluate(_organism);
+					evaluate(_organism);
 
 				if (bestFit < _organism.getFitness()) {
 					bestFit = _organism.getFitness();
 					bestOrganism = _organism;
 				}
 			}
-			System.out.println(evaluateBestOrganism(bestOrganism));
+			double bestFitReEvaluated = evaluateBestOrganism(bestOrganism);
+//			double bestFitReEvaluated = bestFit;
 
 			// compute average and max fitness for each species
 			Iterator itr_specie;
@@ -1045,11 +1063,11 @@ public class Generation {
 			// wait an epoch and make a reproduction of the best species
 			pop.epoch(generation);
 
-			return false;
+			return bestFitReEvaluated;
 		} catch (Exception e) {
 			System.out.print("\n exception in generation.epoch ->" + e);
 			System.exit(12);
-			return false;
+			return -1;
 		}
 	}
 

@@ -169,8 +169,12 @@ public class GameEngine {
 		}
 
 		avgRewardNorm /= n;
-		avgRewardNorm = (avgRewardNorm - worstSolutionReward)
-				/ (bestSolutionReward - worstSolutionReward);
+		
+		// to avoid number error
+		avgRewardNorm = (avgRewardNorm > worstSolutionReward) ? avgRewardNorm : worstSolutionReward;
+		avgRewardNorm = (avgRewardNorm < bestSolutionReward) ? avgRewardNorm : bestSolutionReward;
+		
+		avgRewardNorm = (avgRewardNorm - worstSolutionReward) / (bestSolutionReward - worstSolutionReward);
 
 		return avgRewardNorm;
 	}
@@ -671,7 +675,14 @@ public class GameEngine {
 		double [] p_vals = {0, 0.1, 0.2, 0.3, 0.4};
 		int n = 25;
 		
-		GameEngine.makeExperimentMaps(s_vals, chi_vals, d_vals, p_vals, n);
+		double g = 0.730693;
+		double a = 0.0;
+		for (int i = 0; i < 1000; i++) {
+			a += g;
+		}
+		a /= 1000;
+		System.out.println(a);
+
 
 //		GameEngine ge = new GameEngine(s, chi, d, p);
 //		ge.initGame();

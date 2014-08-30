@@ -113,7 +113,14 @@ public class EnvConstant {
 	public static boolean RUNNING = false;
 	
 	/*** for experiment ***/
+	public static final int NEAT = 0;
+	public static final int NEAT_TODAI = 1;
+	public static final int SPECIES_NEAT = 2;
+	public static final int TOPOLOGY_NEAT = 3;
+	
 	public static boolean RUN_EXPERIMENTS = false;
+	public static int RUNNING_METHOD = NEAT; 
+	public static String RESULTS_FILE = "result.csv";
 	public static int EVALUATION_RUNS = 1000;
 	public static int BEST_EVALUATION_RUNS = 10000;
 }

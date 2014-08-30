@@ -225,7 +225,7 @@ public class GameEngine {
 		return success;
 	}
 
-	// TODO function to load game settings from file
+	// function to load game settings from file
 	public static GameEngine loadGame(String fileName) {
 		GameEngine ge;
 		int s;
@@ -280,7 +280,7 @@ public class GameEngine {
 
 			// calculate the best and the worst solution
 			ge.setMaxMinRewards();
-			
+
 			ge.setInitialized();
 
 			// close file
@@ -296,7 +296,8 @@ public class GameEngine {
 	// calculate the best and the worst solutions of current settings
 	public void setMaxMinRewards() {
 		bestSolutionReward = calculateBestSolution(agentInitPos.getCoordinate());
-		worstSolutionReward = calculateWorstSolution(agentInitPos.getCoordinate());
+		worstSolutionReward = calculateWorstSolution(agentInitPos
+				.getCoordinate());
 	}
 
 	// set initial agent position
@@ -473,6 +474,9 @@ public class GameEngine {
 
 	// function to calculate RBF values for every locations in advance
 	public void initRBFsTable() {
+		// clear table
+		RBFsTable.clear();
+		
 		// produce a dictionary <location-rbfs>
 		for (int row = 0; row < s; row++) {
 			for (int col = 0; col < s; col++) {
@@ -605,19 +609,76 @@ public class GameEngine {
 		System.out.printf("Worst reward: %f\n", worstSolutionReward);
 	}
 
+	// function to produce maps for experiments
+	public static void makeExperimentMaps(int[] s_vals, double[] chi_vals,
+			double[] d_vals, double[] p_vals, int n) {
+		// create a map folder
+		String mapDir = "maps_" + System.currentTimeMillis();
+		File dir = new File(mapDir);
+		if (!dir.mkdirs()) {
+			System.out.println("failed to create folder maps");
+			return;
+		}
+
+		// create maps for each setting
+		String settingDir, settingFile;
+		GameEngine ge;
+		for (int s : s_vals) {
+			for (double chi : chi_vals) {
+				for (double d : d_vals) {
+					for (double p : p_vals) {
+						// create a folder for this setting
+						settingDir = String.format(
+								"s-%d_chi-%.1f_d-%.1f_p-%.1f", s, chi, d, p);
+						settingDir = mapDir + "//" + settingDir;
+						dir = new File(settingDir);
+						if (!dir.mkdirs()) {
+							System.out.println("failed to create folder maps");
+							return;
+						}
+						
+						// create n maps for each setting
+						ge = new GameEngine(s, chi, d, p);
+						for (int i = 0; i < n; i++) {
+							// create new game
+							ge.initGame();
+							
+							// create new game file
+							settingFile = String.format("s-%d_chi-%.1f_d-%.1f_p-%.1f_%d.map", s, chi, d, p, i);
+							settingFile = settingDir + "//" + settingFile;
+							
+							if (!ge.saveGame(settingFile)) {
+								System.out.printf("Failed to save game to %s\n", settingFile);
+								return;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	// main function
 	public static void main(String args[]) {
 		int s = 5;
 		double chi = 0.4;
 		double d = 0.1;
 		double p = 0.2;
-		
-		GameEngine ge = new GameEngine(s, chi, d, p);
-		ge.initGame();
-		ge.printGameInfo();
-		ge.saveGame("game.txt");
 
-		GameEngine g = GameEngine.loadGame("game.txt");
-		g.printGameInfo();
+		int [] s_vals = {5,7,9,11};
+		double [] chi_vals = {0.2, 0.4, 0.6, 0.8, 1.0};
+		double [] d_vals = {0, 0.1, 0.2, 0.3, 0.4};
+		double [] p_vals = {0, 0.1, 0.2, 0.3, 0.4};
+		int n = 25;
+		
+		GameEngine.makeExperimentMaps(s_vals, chi_vals, d_vals, p_vals, n);
+
+//		GameEngine ge = new GameEngine(s, chi, d, p);
+//		ge.initGame();
+//		ge.printGameInfo();
+//		ge.saveGame("game.txt");
+//
+//		GameEngine g = GameEngine.loadGame("game.txt");
+//		g.printGameInfo();
 	}
 }

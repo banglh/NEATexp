@@ -436,7 +436,6 @@ public class Generation {
 						if (EnvConstant.RUN_EXPERIMENTS) {
 							double bestFit = epochExp(u_neat, u_pop, gen, curr_name_pop_specie);
 							bw.write(String.format("%f\n", bestFit));
-							System.out.println(bestFit);
 						}
 						else
 							epoch(u_neat, u_pop, gen, curr_name_pop_specie);
@@ -448,6 +447,7 @@ public class Generation {
 					
 					// close result file
 					bw.close();
+					System.out.printf("finish writing results to file %s\n", EnvConstant.RESULTS_FILE);
 				} catch (Exception e) {
 					System.out.println(e);
 				}

@@ -1,10 +1,9 @@
 *.class
 *.map
+*.csv
 gui/data/*
 !gui/data/genome
 !gui/data/genome_parity
 nogui/data/*
-!nogui/data/genome
-!nogui/data/genome_parity
 
 

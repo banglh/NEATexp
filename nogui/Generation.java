@@ -57,8 +57,7 @@ public class Generation {
 
 	private volatile Thread lookupThread;
 
-	final static String[] My_styles = { "normal", "italic", "bold",
-			"bold-italic" };
+	final static String[] My_styles = { "normal", "italic", "bold", "bold-italic" };
 
 	/**
 	 * pan1 constructor comment.
@@ -87,61 +86,44 @@ public class Generation {
 			if (EnvConstant.TYPE_OF_SIMULATION == EnvConstant.SIMULATION_FROM_FILE)
 				logger.sendToLog(" generation:      data coming from file");
 
-			logger.sendToLog(" generation:      data input  is  "
-					+ EnvConstant.DATA_INP);
-			logger.sendToLog(" generation:      data output is  "
-					+ EnvConstant.DATA_OUT);
-			logger.sendToLog(" generation:      fitness class   "
-					+ EnvConstant.CLASS_FITNESS);
+			logger.sendToLog(" generation:      data input  is  " + EnvConstant.DATA_INP);
+			logger.sendToLog(" generation:      data output is  " + EnvConstant.DATA_OUT);
+			logger.sendToLog(" generation:      fitness class   " + EnvConstant.CLASS_FITNESS);
 			// logger.sendToLog(" generation:      unit input are  "+
 			// EnvConstant.NR_UNIT_INPUT);
 			// logger.sendToLog(" generation:      unit output are "+
 			// EnvConstant.NR_UNIT_OUTPUT);
 
-			if ((EnvConstant.TYPE_OF_START == EnvConstant.START_FROM_GENOME)
-					&& (!EnvConstant.FORCE_RESTART))
-				logger.sendToLog(" generation:      start from genome : "
-						+ EnvConstant.NAME_GENOMEA);
+			if ((EnvConstant.TYPE_OF_START == EnvConstant.START_FROM_GENOME) && (!EnvConstant.FORCE_RESTART))
+				logger.sendToLog(" generation:      start from genome : " + EnvConstant.NAME_GENOMEA);
 
-			if ((EnvConstant.TYPE_OF_START == EnvConstant.START_FROM_NEW_RANDOM_POPULATION)
-					&& (!EnvConstant.FORCE_RESTART)) {
-				logger.sendToLog(" generation:      start from rnd population : "
-						+ EnvConstant.NAME_CURR_POPULATION);
-				logger.sendToLog(" generation:                       max unit : "
-						+ EnvConstant.NR_UNIT_MAX);
-				logger.sendToLog(" generation:                      recursion : "
-						+ EnvConstant.RECURSION);
-				logger.sendToLog(" generation:                    % Prob link : "
-						+ EnvConstant.PROBABILITY_OF_CONNECTION);
-				logger.sendToLog(" generation:      prefix genome random      : "
-						+ EnvConstant.PREFIX_GENOME_RANDOM);
+			if ((EnvConstant.TYPE_OF_START == EnvConstant.START_FROM_NEW_RANDOM_POPULATION) && (!EnvConstant.FORCE_RESTART)) {
+				logger.sendToLog(" generation:      start from rnd population : " + EnvConstant.NAME_CURR_POPULATION);
+				logger.sendToLog(" generation:                       max unit : " + EnvConstant.NR_UNIT_MAX);
+				logger.sendToLog(" generation:                      recursion : " + EnvConstant.RECURSION);
+				logger.sendToLog(" generation:                    % Prob link : " + EnvConstant.PROBABILITY_OF_CONNECTION);
+				logger.sendToLog(" generation:      prefix genome random      : " + EnvConstant.PREFIX_GENOME_RANDOM);
 			}
 
 			if (EnvConstant.TYPE_OF_START == EnvConstant.START_FROM_OLD_POPULATION)
-				logger.sendToLog(" generation:      start from old population : "
-						+ EnvConstant.NAME_CURR_POPULATION);
+				logger.sendToLog(" generation:      start from old population : " + EnvConstant.NAME_CURR_POPULATION);
 
 			if (EnvConstant.FORCE_RESTART)
-				logger.sendToLog(" generation:      start temporary forced from last population : "
-						+ EnvConstant.NAME_CURR_POPULATION);
+				logger.sendToLog(" generation:      start temporary forced from last population : " + EnvConstant.NAME_CURR_POPULATION);
 
-			logger.sendToLog(" generation:      number of epochs       : "
-					+ EnvConstant.NUMBER_OF_EPOCH);
-			logger.sendToLog(" generation:      prefix of species file : "
-					+ EnvConstant.PREFIX_SPECIES_FILE);
-			logger.sendToLog(" generation:      prefix of winner  file : "
-					+ EnvConstant.PREFIX_WINNER_FILE);
+			logger.sendToLog(" generation:      number of epochs       : " + EnvConstant.NUMBER_OF_EPOCH);
+			logger.sendToLog(" generation:      prefix of species file : " + EnvConstant.PREFIX_SPECIES_FILE);
+			logger.sendToLog(" generation:      prefix of winner  file : " + EnvConstant.PREFIX_WINNER_FILE);
 
 			if (EnvConstant.ACTIVATION_PERIOD == EnvConstant.AUTOMATIC)
 				logger.sendToLog(" generation:      number of activaction A(t) = f(depth(net)) (automatic)");
 			if (EnvConstant.ACTIVATION_PERIOD == EnvConstant.MANUAL)
-				logger.sendToLog(" generation:      number of activaction A(t) = "
-						+ EnvConstant.ACTIVATION_TIMES + " (manual)");
+				logger.sendToLog(" generation:      number of activaction A(t) = " + EnvConstant.ACTIVATION_TIMES + " (manual)");
 
 			boolean rc1 = startNeat();
-		} catch (Throwable e1) {
-			logger.sendToLog(" generation: error during generation.startProcess() :"
-					+ e1);
+		}
+		catch (Throwable e1) {
+			logger.sendToLog(" generation: error during generation.startProcess() :" + e1);
 		}
 	}
 
@@ -149,8 +131,7 @@ public class Generation {
 		Runnable lookupRun = new Runnable() {
 			public void run() {
 				// getSessionInformation();
-				logger.sendToLog(" generation: start reading session file ->"
-						+ EnvRoutine.getJneatSession());
+				logger.sendToLog(" generation: start reading session file ->" + EnvRoutine.getJneatSession());
 				EnvRoutine.getSession();
 				logger.sendToLog(" generation: end read session file");
 
@@ -159,6 +140,16 @@ public class Generation {
 		};
 		lookupThread = new Thread(lookupRun, " looktest");
 		lookupThread.start();
+	}
+
+	// <bang> function startProcess not using thread
+	public void startProcessExp() {
+		// getSessionInformation();
+		logger.sendToLog(" generation: start reading session file ->" + EnvRoutine.getJneatSession());
+		EnvRoutine.getSession();
+		logger.sendToLog(" generation: end read session file");
+
+		startProcess();
 	}
 
 	// "stop" function
@@ -179,6 +170,17 @@ public class Generation {
 		initAllMap();
 		EnvConstant.FORCE_RESTART = false;
 		startProcessAsync();
+		logger.sendToStatus("READY");
+	}
+
+	// <bang> function start for experiments
+	public void startExp() {
+		EnvConstant.FORCE_RESTART = false;
+		EnvConstant.STOP_EPOCH = false;
+		logger.sendToStatus(" generation: wait...");
+		initAllMap();
+		EnvConstant.FORCE_RESTART = false;
+		startProcessExp(); // TODO change this function to not use thread
 		logger.sendToStatus("READY");
 	}
 
@@ -242,15 +244,13 @@ public class Generation {
 				ObjClass_inp = Class_inp.newInstance();
 				Method_inp = Class_inp.getMethod("getNumUnit", null);
 				ObjRet_inp = Method_inp.invoke(ObjClass_inp, null);
-				EnvConstant.NR_UNIT_INPUT = Integer.parseInt(ObjRet_inp
-						.toString());
+				EnvConstant.NR_UNIT_INPUT = Integer.parseInt(ObjRet_inp.toString());
 
 				// number of samples
 				//
 				Method_inp = Class_inp.getMethod("getNumSamples", null); //
 				ObjRet_inp = Method_inp.invoke(ObjClass_inp, null);
-				EnvConstant.NUMBER_OF_SAMPLES = Integer.parseInt(ObjRet_inp
-						.toString());
+				EnvConstant.NUMBER_OF_SAMPLES = Integer.parseInt(ObjRet_inp.toString());
 
 				// data output
 				//
@@ -259,8 +259,7 @@ public class Generation {
 				ObjClass_tgt = Class_tgt.newInstance();
 				Method_tgt = Class_tgt.getMethod("getNumUnit", null);
 				ObjRet_tgt = Method_tgt.invoke(ObjClass_tgt, null);
-				EnvConstant.NR_UNIT_OUTPUT = Integer.parseInt(ObjRet_tgt
-						.toString());
+				EnvConstant.NR_UNIT_OUTPUT = Integer.parseInt(ObjRet_tgt.toString());
 
 			}
 
@@ -276,8 +275,7 @@ public class Generation {
 				// e restituisce il numero di tali record in input
 				xnome = EnvRoutine.getJneatFile(EnvConstant.DATA_INP);
 
-				EnvConstant.NUMBER_OF_SAMPLES = EnvRoutine
-						.getNumberSamplesForFile(xnome);
+				EnvConstant.NUMBER_OF_SAMPLES = EnvRoutine.getNumberSamplesForFile(xnome);
 				// EnvConstant.NUMBER_OF_SAMPLES =
 				// getNumberSamplesForFile(xnome);
 
@@ -296,24 +294,19 @@ public class Generation {
 				int nout = EnvRoutine.getNumberSamplesForFile(xnome);
 
 				if (EnvConstant.NUMBER_OF_SAMPLES != nout) {
-					System.out.print("\n Number of input samples (="
-							+ EnvConstant.NUMBER_OF_SAMPLES);
-					System.out
-							.print(") is different to number of target samples(="
-									+ nout + ")");
+					System.out.print("\n Number of input samples (=" + EnvConstant.NUMBER_OF_SAMPLES);
+					System.out.print(") is different to number of target samples(=" + nout + ")");
 					System.out.print("\n correct files and rerun;  \n\t bye");
 					System.exit(8);
 				}
 			}
 
-			logger.sendToLog(" generation:  real    okay setting size inp ->"
-					+ EnvConstant.NR_UNIT_INPUT);
-			logger.sendToLog(" generation:  real    okay setting size out ->"
-					+ EnvConstant.NR_UNIT_OUTPUT);
-			logger.sendToLog(" generation:  real    okay setting sample   ->"
-					+ EnvConstant.NUMBER_OF_SAMPLES);
+			logger.sendToLog(" generation:  real    okay setting size inp ->" + EnvConstant.NR_UNIT_INPUT);
+			logger.sendToLog(" generation:  real    okay setting size out ->" + EnvConstant.NR_UNIT_OUTPUT);
+			logger.sendToLog(" generation:  real    okay setting sample   ->" + EnvConstant.NUMBER_OF_SAMPLES);
 
-		} catch (Exception ed) {
+		}
+		catch (Exception ed) {
 			logger.sendToLog(" generation: error in startNeat() " + ed);
 		}
 
@@ -326,32 +319,24 @@ public class Generation {
 			rc = u_neat.readParam(EnvRoutine.getJneatParameter());
 
 			if (!rc) {
-				logger.sendToLog(" generation: error in read "
-						+ EnvRoutine.getJneatParameter());
+				logger.sendToLog(" generation: error in read " + EnvRoutine.getJneatParameter());
 				return false;
 			}
 
-			logger.sendToLog(" generation:   ok! "
-					+ EnvRoutine.getJneatParameter());
+			logger.sendToLog(" generation:   ok! " + EnvRoutine.getJneatParameter());
 			//
 			// gestisce start da genoma unico
 			//
-			if ((EnvConstant.TYPE_OF_START == EnvConstant.START_FROM_GENOME)
-					&& (!EnvConstant.FORCE_RESTART)) {
+			if ((EnvConstant.TYPE_OF_START == EnvConstant.START_FROM_GENOME) && (!EnvConstant.FORCE_RESTART)) {
 
-				xFile = new IOseq(
-						EnvRoutine.getJneatFileData(EnvConstant.NAME_GENOMEA));
+				xFile = new IOseq(EnvRoutine.getJneatFileData(EnvConstant.NAME_GENOMEA));
 				rc = xFile.IOseqOpenR();
 				if (!rc) {
-					logger.sendToLog(" generation:   error open "
-							+ EnvRoutine
-									.getJneatFileData(EnvConstant.NAME_GENOMEA));
+					logger.sendToLog(" generation:   error open " + EnvRoutine.getJneatFileData(EnvConstant.NAME_GENOMEA));
 					return false;
 				}
 
-				logger.sendToLog(" generation:      open file genome "
-						+ EnvRoutine.getJneatFileData(EnvConstant.NAME_GENOMEA)
-						+ "...");
+				logger.sendToLog(" generation:      open file genome " + EnvRoutine.getJneatFileData(EnvConstant.NAME_GENOMEA) + "...");
 				xline = xFile.IOseqRead();
 				st = new StringTokenizer(xline);
 				// skip
@@ -367,8 +352,7 @@ public class Generation {
 			//
 			// gestisce start da popolazione random
 			//
-			if (EnvConstant.TYPE_OF_START == EnvConstant.START_FROM_NEW_RANDOM_POPULATION
-					&& (!EnvConstant.FORCE_RESTART)) {
+			if (EnvConstant.TYPE_OF_START == EnvConstant.START_FROM_NEW_RANDOM_POPULATION && (!EnvConstant.FORCE_RESTART)) {
 				logger.sendToLog(" generation:      cold start from random population.. ");
 				u_prb_link = EnvConstant.PROBABILITY_OF_CONNECTION;
 				u_recurrent = EnvConstant.RECURSION;
@@ -380,11 +364,8 @@ public class Generation {
 			//
 			// gestisce start da popolazione esistente
 			//
-			if ((EnvConstant.TYPE_OF_START == EnvConstant.START_FROM_OLD_POPULATION)
-					|| (EnvConstant.FORCE_RESTART)) {
-				logger.sendToLog(" generation:      warm start from old population -> "
-						+ EnvRoutine
-								.getJneatFileData(EnvConstant.NAME_CURR_POPULATION));
+			if ((EnvConstant.TYPE_OF_START == EnvConstant.START_FROM_OLD_POPULATION) || (EnvConstant.FORCE_RESTART)) {
+				logger.sendToLog(" generation:      warm start from old population -> " + EnvRoutine.getJneatFileData(EnvConstant.NAME_CURR_POPULATION));
 			}
 
 			// EnvConstant.SERIAL_WINNER = 0;
@@ -401,20 +382,14 @@ public class Generation {
 
 				logger.sendToLog(" generation:      Spawned population ...");
 
-				if ((EnvConstant.TYPE_OF_START == EnvConstant.START_FROM_GENOME)
-						&& (!EnvConstant.FORCE_RESTART))
+				if ((EnvConstant.TYPE_OF_START == EnvConstant.START_FROM_GENOME) && (!EnvConstant.FORCE_RESTART))
 					u_pop = new Population(u_genome, u_neat.p_pop_size);
 
-				if ((EnvConstant.TYPE_OF_START == EnvConstant.START_FROM_NEW_RANDOM_POPULATION)
-						&& (!EnvConstant.FORCE_RESTART))
-					u_pop = new Population(u_neat.p_pop_size, (u_inp_unit + 1),
-							u_out_unit, u_max_unit, u_recurrent, u_prb_link);
+				if ((EnvConstant.TYPE_OF_START == EnvConstant.START_FROM_NEW_RANDOM_POPULATION) && (!EnvConstant.FORCE_RESTART))
+					u_pop = new Population(u_neat.p_pop_size, (u_inp_unit + 1), u_out_unit, u_max_unit, u_recurrent, u_prb_link);
 
-				if ((EnvConstant.TYPE_OF_START == EnvConstant.START_FROM_OLD_POPULATION)
-						|| (EnvConstant.FORCE_RESTART))
-					u_pop = new Population(
-							EnvRoutine
-									.getJneatFileData(EnvConstant.NAME_CURR_POPULATION));
+				if ((EnvConstant.TYPE_OF_START == EnvConstant.START_FROM_OLD_POPULATION) || (EnvConstant.FORCE_RESTART))
+					u_pop = new Population(EnvRoutine.getJneatFileData(EnvConstant.NAME_CURR_POPULATION));
 
 				logger.sendToLog(" generation:      Verifying Spawned Pop....");
 				u_pop.verify();
@@ -444,11 +419,12 @@ public class Generation {
 						if (EnvConstant.STOP_EPOCH)
 							break;
 					}
-					
+
 					// close result file
 					bw.close();
 					System.out.printf("finish writing results to file %s\n", EnvConstant.RESULTS_FILE);
-				} catch (Exception e) {
+				}
+				catch (Exception e) {
 					System.out.println(e);
 				}
 
@@ -457,13 +433,11 @@ public class Generation {
 			}
 
 			// before exit save last population
-			u_pop.print_to_file_by_species(EnvRoutine
-					.getJneatFileData(EnvConstant.NAME_CURR_POPULATION));
-			logger.sendToLog(" generation:      saved curr pop file "
-					+ EnvRoutine
-							.getJneatFileData(EnvConstant.NAME_CURR_POPULATION));
+			u_pop.print_to_file_by_species(EnvRoutine.getJneatFileData(EnvConstant.NAME_CURR_POPULATION));
+			logger.sendToLog(" generation:      saved curr pop file " + EnvRoutine.getJneatFileData(EnvConstant.NAME_CURR_POPULATION));
 			logger.sendToLog(" generation:  READY for other request");
-		} catch (Throwable e1) {
+		}
+		catch (Throwable e1) {
 			logger.sendToLog(" error in generation.startNeat() " + e1);
 		}
 
@@ -526,8 +500,7 @@ public class Generation {
 		int xnn = _net.getAllnodes().size();
 		Integer nn = new Integer(xnn);
 
-		Class[] params = { int.class, int.class, double[][].class,
-				double[][].class };
+		Class[] params = { int.class, int.class, double[][].class, double[][].class };
 		Object paramsObj[] = new Object[] { ns, nn, out, tgt };
 
 		if (EnvConstant.TYPE_OF_SIMULATION == EnvConstant.SIMULATION_FROM_CLASS) {
@@ -545,10 +518,8 @@ public class Generation {
 					// neurons
 					for (int j = 0; j < EnvConstant.NR_UNIT_INPUT; j++) {
 						plist_in[1] = j;
-						Method_inp = Class_inp
-								.getMethod("getInput", params_inp);
-						ObjRet_inp = Method_inp.invoke(ObjClass_inp,
-								paramsObj_inp);
+						Method_inp = Class_inp.getMethod("getInput", params_inp);
+						ObjRet_inp = Method_inp.invoke(ObjClass_inp, paramsObj_inp);
 						double v1 = Double.parseDouble(ObjRet_inp.toString());
 						in[j] = v1;
 					}
@@ -569,7 +540,8 @@ public class Generation {
 						for (int relax = 0; relax < EnvConstant.ACTIVATION_TIMES; relax++) {
 							success = _net.activate();
 						}
-					} else {
+					}
+					else {
 						// first activation from sensor to next layer....
 						success = _net.activate();
 
@@ -582,8 +554,7 @@ public class Generation {
 
 					// for each sample save each output
 					for (int j = 0; j < EnvConstant.NR_UNIT_OUTPUT; j++)
-						out[count][j] = ((NNode) _net.getOutputs().elementAt(j))
-								.getActivation();
+						out[count][j] = ((NNode) _net.getOutputs().elementAt(j)).getActivation();
 
 					// clear net
 					_net.flush();
@@ -591,11 +562,8 @@ public class Generation {
 			}
 
 			catch (Exception e2) {
-				System.out
-						.print("\n Error generic in Generation.input signal : err-code = \n"
-								+ e2);
-				System.out
-						.print("\n re-run this application when the class is ready\n\t\t thank! ");
+				System.out.print("\n Error generic in Generation.input signal : err-code = \n" + e2);
+				System.out.print("\n re-run this application when the class is ready\n\t\t thank! ");
 				System.exit(8);
 
 			}
@@ -626,8 +594,7 @@ public class Generation {
 						if (sz != EnvConstant.NR_UNIT_INPUT) {
 							System.out.print("\n *ALERT* in rec " + count);
 							System.out.print(" number of input = " + sz);
-							System.out.print(" different from declared "
-									+ EnvConstant.NR_UNIT_INPUT + " unit");
+							System.out.print(" different from declared " + EnvConstant.NR_UNIT_INPUT + " unit");
 							System.out.print("\n correct and re-run;\n\t  Bye");
 							System.exit(9);
 						}
@@ -659,7 +626,8 @@ public class Generation {
 							for (int relax = 0; relax < EnvConstant.ACTIVATION_TIMES; relax++) {
 								success = _net.activate();
 							}
-						} else {
+						}
+						else {
 							// first activation from sensor to next layer....
 							success = _net.activate();
 
@@ -677,8 +645,7 @@ public class Generation {
 							// System.out.print("\n time("+count+") out("+j+") ");
 							// System.out.print(" = "+out[count][j]);
 
-							out[count][j] = ((NNode) _net.getOutputs()
-									.elementAt(j)).getActivation();
+							out[count][j] = ((NNode) _net.getOutputs().elementAt(j)).getActivation();
 						}
 
 						// reset net
@@ -714,12 +681,9 @@ public class Generation {
 						plist_tgt[0] = count;
 						for (int j = 0; j < EnvConstant.NR_UNIT_OUTPUT; j++) {
 							plist_tgt[1] = j;
-							Method_tgt = Class_tgt.getMethod("getTarget",
-									params_tgt);
-							ObjRet_tgt = Method_tgt.invoke(ObjClass_tgt,
-									paramsObj_tgt);
-							double v1 = Double.parseDouble(ObjRet_tgt
-									.toString());
+							Method_tgt = Class_tgt.getMethod("getTarget", params_tgt);
+							ObjRet_tgt = Method_tgt.invoke(ObjClass_tgt, paramsObj_tgt);
+							double v1 = Double.parseDouble(ObjRet_tgt.toString());
 							// System.out.print(" ,  o["+j+"] = "+v1);
 							tgt[count][j] = v1;
 						}
@@ -746,16 +710,10 @@ public class Generation {
 								riga = new StringTokenizer(xline);
 								int sz = riga.countTokens();
 								if (sz != EnvConstant.NR_UNIT_OUTPUT) {
-									System.out.print("\n *ALERT* in rec "
-											+ count);
-									System.out.print(" number of output = "
-											+ sz);
-									System.out
-											.print(" different from declared "
-													+ EnvConstant.NR_UNIT_OUTPUT
-													+ " unit");
-									System.out
-											.print("\n correct and re-run;\n\t  Bye");
+									System.out.print("\n *ALERT* in rec " + count);
+									System.out.print(" number of output = " + sz);
+									System.out.print(" different from declared " + EnvConstant.NR_UNIT_OUTPUT + " unit");
+									System.out.print("\n correct and re-run;\n\t  Bye");
 									System.exit(9);
 								}
 
@@ -785,11 +743,8 @@ public class Generation {
 			}
 
 			catch (Exception e3) {
-				System.out
-						.print("\n Error generic in Generation.success : err-code = \n"
-								+ e3);
-				System.out
-						.print("\n re-run this application when the class is ready\n\t\t thank! ");
+				System.out.print("\n Error generic in Generation.success : err-code = \n" + e3);
+				System.out.print("\n re-run this application when the class is ready\n\t\t thank! ");
 				System.exit(8);
 			}
 
@@ -827,8 +782,7 @@ public class Generation {
 		ANNController controller = new ANNController();
 		controller.setOrganism(organism);
 
-		fit_dyn = Experiment.ge.evaluate(controller,
-				EnvConstant.EVALUATION_RUNS);
+		fit_dyn = Experiment.ge.evaluate(controller, EnvConstant.EVALUATION_RUNS);
 		err_dyn = EnvConstant.MAX_FITNESS - fit_dyn;
 
 		// set fitness
@@ -846,14 +800,12 @@ public class Generation {
 		ANNController controller = new ANNController();
 		controller.setOrganism(organism);
 
-		fit_dyn = Experiment.ge.evaluate(controller,
-				EnvConstant.BEST_EVALUATION_RUNS);
+		fit_dyn = Experiment.ge.evaluate(controller, EnvConstant.BEST_EVALUATION_RUNS);
 
 		return fit_dyn;
 	}
 
-	public boolean epoch(Neat _neat, Population pop, int generation,
-			String filename) {
+	public boolean epoch(Neat _neat, Population pop, int generation, String filename) {
 
 		//
 		String winner_prefix = EnvConstant.PREFIX_WINNER_FILE;
@@ -925,48 +877,35 @@ public class Generation {
 				if (win)
 					cause2 = " winner";
 
-				String name_of_specie = EnvRoutine.getJneatFileData(filename)
-						+ generation;
+				String name_of_specie = EnvRoutine.getJneatFileData(filename) + generation;
 				pop.print_to_file_by_species(name_of_specie);
-				logger.sendToLog(" generation:      write/rewrite file specie  "
-						+ name_of_specie + " -> " + cause1 + cause2);
+				logger.sendToLog(" generation:      write/rewrite file specie  " + name_of_specie + " -> " + cause1 + cause2);
 
 			}
 
 			// if exist a winner write to file
 			if (win) {
 				String name_of_winner;
-				logger.sendToLog(" generation:      in this generation "
-						+ generation + " i have found at leat one WINNER  ");
+				logger.sendToLog(" generation:      in this generation " + generation + " i have found at leat one WINNER  ");
 				int conta = 0;
 				itr_organism = pop.getOrganisms().iterator();
 				while (itr_organism.hasNext()) {
 					Organism _organism = ((Organism) itr_organism.next());
 					if (_organism.winner) {
-						name_of_winner = EnvRoutine
-								.getJneatFileData(winner_prefix)
-								+ generation
-								+ "_" + _organism.getGenome().genome_id;
+						name_of_winner = EnvRoutine.getJneatFileData(winner_prefix) + generation + "_" + _organism.getGenome().genome_id;
 						_organism.getGenome().print_to_filename(name_of_winner);
 						// EnvConstant.SERIAL_WINNER++;
 						conta++;
 					}
 					if (EnvConstant.SUPER_WINNER_) {
-						logger.sendToLog(" generation:      in this generation "
-								+ generation + " i have found a SUPER WINNER ");
-						name_of_winner = EnvRoutine
-								.getJneatFileData(winner_prefix)
-								+ "_SUPER_"
-								+ generation
-								+ "_"
-								+ _organism.getGenome().genome_id;
+						logger.sendToLog(" generation:      in this generation " + generation + " i have found a SUPER WINNER ");
+						name_of_winner = EnvRoutine.getJneatFileData(winner_prefix) + "_SUPER_" + generation + "_" + _organism.getGenome().genome_id;
 						_organism.getGenome().print_to_filename(name_of_winner);
 						// EnvConstant.SERIAL_SUPER_WINNER++;
 						EnvConstant.SUPER_WINNER_ = false;
 					}
 				}
-				logger.sendToLog(" generation:      number of winner's is "
-						+ conta);
+				logger.sendToLog(" generation:      number of winner's is " + conta);
 			}
 
 			// wait an epoch and make a reproduction of the best species
@@ -1013,17 +952,18 @@ public class Generation {
 			System.out.println(EnvConstant.MAX_WINNER_FITNESS);
 			if (win) {
 				return true;
-			} else
+			}
+			else
 				return false;
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			System.out.print("\n exception in generation.epoch ->" + e);
 			System.exit(12);
 			return false;
 		}
 	}
 
-	public double epochExp(Neat _neat, Population pop, int generation,
-			String filename) {
+	public double epochExp(Neat _neat, Population pop, int generation, String filename) {
 		try {
 			// Evaluate each organism if exist the winner.........
 			// flag and store only the first winner
@@ -1037,7 +977,7 @@ public class Generation {
 				Organism _organism = ((Organism) itr_organism.next());
 
 				// evaluate
-				// TODO the fitness of the same organism may be changed
+				// the fitness of the same organism may be changed
 				if (EnvConstant.RUN_EXPERIMENTS)
 					evaluateExp(_organism);
 				else
@@ -1049,7 +989,7 @@ public class Generation {
 				}
 			}
 			double bestFitReEvaluated = evaluateBestOrganism(bestOrganism);
-//			double bestFitReEvaluated = bestFit;
+			// double bestFitReEvaluated = bestFit;
 
 			// compute average and max fitness for each species
 			Iterator itr_specie;
@@ -1064,7 +1004,8 @@ public class Generation {
 			pop.epoch(generation);
 
 			return bestFitReEvaluated;
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			System.out.print("\n exception in generation.epoch ->" + e);
 			System.exit(12);
 			return -1;
@@ -1091,7 +1032,8 @@ public class Generation {
 				}
 				xline = xFile.IOseqRead();
 			}
-		} else {
+		}
+		else {
 			System.out.print("\n error in open ->" + _file);
 			System.out.print("\n correct and re-run! \n\t Bye");
 			System.exit(8);

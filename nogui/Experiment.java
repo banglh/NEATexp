@@ -25,10 +25,10 @@ public class Experiment {
 		// double[] d_vals = { 0, 0.1, 0.2, 0.3, 0.4 };
 		// double[] p_vals = { 0, 0.1, 0.2, 0.3, 0.4 };
 		int[] s_vals = { 5 };
-		double[] chi_vals = { 0.8, 1.0 };
-		double[] d_vals = { 0, 0.1 };
-		double[] p_vals = { 0, 0.1 };
-		int n = 25;
+		double[] chi_vals = { 0.8 };
+		double[] d_vals = { 0 };
+		double[] p_vals = { 0 };
+		int n = 3;
 		int method = EnvConstant.NEAT;
 
 		// run experiment
@@ -51,16 +51,38 @@ public class Experiment {
 	public static void runExperiments(int method, int[] s_vals, double[] chi_vals, double[] d_vals, double[] p_vals, int n) {
 		// set method
 		EnvConstant.RUNNING_METHOD = method;
+		switch (EnvConstant.RUNNING_METHOD) {
+			case EnvConstant.NEAT:
+				EnvConstant.RUNNING_METHOD_NAME = EnvConstant.NEAT_NAME;
+				break;
+			case EnvConstant.NEAT_TODAI:
+				EnvConstant.RUNNING_METHOD_NAME = EnvConstant.NEAT_TODAI_NAME;
+				break;
+			case EnvConstant.SPECIES_NEAT:
+				EnvConstant.RUNNING_METHOD_NAME = EnvConstant.SPECIES_NEAT_NAME;
+				break;
+			case EnvConstant.TOPOLOGY_NEAT:
+				EnvConstant.RUNNING_METHOD_NAME = EnvConstant.TOPOLOGY_NEAT_NAME;
+				break;
+		}
+
+		// create new results folder
+		String resultsDir = "..//results_" + System.currentTimeMillis();
+		File dir = new File(resultsDir);
+		if (!dir.mkdirs()) {
+			System.out.println("failed to create results folder");
+			return;
+		}
 
 		// run experiment for each map
-		Experiment exp;
 		for (int s : s_vals) {
 			for (double chi : chi_vals) {
 				for (double d : d_vals) {
 					for (double p : p_vals) {
+						System.out.printf("*** start %s experiments with s = %d, chi = %.1f, d = %.1f, p = %.1f ***\n", EnvConstant.RUNNING_METHOD_NAME, s, chi, d, p);
 						for (int i = 0; i < n; i++) {
 							// initialize experiment
-							exp = new Experiment();
+							Experiment exp = new Experiment();
 
 							// initialize game
 							String mapDir = String.format("..//maps//s-%d_chi-%.1f_d-%.1f_p-%.1f//", s, chi, d, p);
@@ -75,14 +97,6 @@ public class Experiment {
 							EnvConstant.RUN_EXPERIMENTS = true;
 							EnvConstant.EVALUATION_RUNS = 1000;
 							EnvConstant.BEST_EVALUATION_RUNS = 10000;
-
-							// create new results folder
-							String resultsDir = "results_" + System.currentTimeMillis();
-							File dir = new File(resultsDir);
-							if (!dir.mkdirs()) {
-								System.out.println("failed to create results folder");
-								return;
-							}
 
 							switch (EnvConstant.RUNNING_METHOD) {
 								case EnvConstant.NEAT:
@@ -133,7 +147,7 @@ public class Experiment {
 		a_session.loadSessDefault();
 
 		// run neat
-		a_generation.start();
+		a_generation.startExp();
 	}
 
 	// init game

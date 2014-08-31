@@ -1,4 +1,5 @@
 *.class
+*.map
 gui/data/*
 !gui/data/genome
 !gui/data/genome_parity

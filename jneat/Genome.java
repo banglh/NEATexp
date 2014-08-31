@@ -453,6 +453,162 @@ public class Genome extends Neat {
 
 	}
 
+	public double compatibility2(Genome g) {
+
+		// Innovation numbers
+		double p1innov;
+		double p2innov;
+
+		// Intermediate value
+		double mut_diff;
+
+		// Set up the counters
+		double num_disjoint = 0.0;
+		double num_excess = 0.0;
+		double mut_diff_total = 0.0;
+		double num_matching = 0.0; // Used to normalize mutation_num differences
+
+		Gene _gene1 = null;
+		Gene _gene2 = null;
+
+		double max_genome_size; // Size of larger Genome
+
+		// Get the length of the longest Genome for percentage computations
+		int size1 = genes.size();
+		int size2 = g.genes.size();
+		max_genome_size = Math.max(size1, size2);
+		// Now move through the Genes of each potential parent
+		// until both Genomes end
+		int j = 0;
+		int j1 = 0;
+		int j2 = 0;
+
+		for (j = 0; j < max_genome_size; j++) {
+
+			if (j1 >= size1) {
+				num_excess += 1.0;
+				j2++;
+			}
+			else if (j2 >= size2) {
+				num_excess += 1.0;
+				j1++;
+			}
+			else {
+				_gene1 = (Gene) genes.elementAt(j1);
+				_gene2 = (Gene) g.genes.elementAt(j2);
+
+				// Extract current innovation numbers
+				p1innov = _gene1.innovation_num;
+				p2innov = _gene2.innovation_num;
+
+				if (p1innov == p2innov) {
+					num_matching += 1.0;
+					mut_diff = Math.abs(_gene1.mutation_num - _gene2.mutation_num);
+					mut_diff_total += mut_diff;
+					j1++;
+					j2++;
+				}
+				else if (p1innov < p2innov) {
+					j1++;
+					num_disjoint += 1.0;
+				}
+				else if (p2innov < p1innov) {
+					j2++;
+					num_disjoint += 1.0;
+				}
+
+			}
+
+		}
+
+		// Return the compatibility number using compatibility formula
+		// Note that mut_diff_total/num_matching gives the AVERAGE
+		// difference between mutation_nums for any two matching Genes
+		// in the Genome.
+		// Look at disjointedness and excess in the absolute (ignoring size)
+
+		return num_disjoint;
+
+	}
+
+	public double compatibility3(Genome g) {
+
+		// Innovation numbers
+		double p1innov;
+		double p2innov;
+
+		// Intermediate value
+		double mut_diff;
+
+		// Set up the counters
+		double num_disjoint = 0.0;
+		double num_excess = 0.0;
+		double mut_diff_total = 0.0;
+		double num_matching = 0.0; // Used to normalize mutation_num differences
+
+		Gene _gene1 = null;
+		Gene _gene2 = null;
+
+		double max_genome_size; // Size of larger Genome
+
+		// Get the length of the longest Genome for percentage computations
+		int size1 = genes.size();
+		int size2 = g.genes.size();
+		max_genome_size = Math.max(size1, size2);
+		// Now move through the Genes of each potential parent
+		// until both Genomes end
+		int j = 0;
+		int j1 = 0;
+		int j2 = 0;
+
+		for (j = 0; j < max_genome_size; j++) {
+
+			if (j1 >= size1) {
+				num_excess += 1.0;
+				j2++;
+			}
+			else if (j2 >= size2) {
+				num_excess += 1.0;
+				j1++;
+			}
+			else {
+				_gene1 = (Gene) genes.elementAt(j1);
+				_gene2 = (Gene) g.genes.elementAt(j2);
+
+				// Extract current innovation numbers
+				p1innov = _gene1.innovation_num;
+				p2innov = _gene2.innovation_num;
+
+				if (p1innov == p2innov) {
+					num_matching += 1.0;
+					mut_diff = Math.abs(_gene1.mutation_num - _gene2.mutation_num);
+					mut_diff_total += mut_diff;
+					j1++;
+					j2++;
+				}
+				else if (p1innov < p2innov) {
+					j1++;
+					num_disjoint += 1.0;
+				}
+				else if (p2innov < p1innov) {
+					j2++;
+					num_disjoint += 1.0;
+				}
+
+			}
+
+		}
+
+		// Return the compatibility number using compatibility formula
+		// Note that mut_diff_total/num_matching gives the AVERAGE
+		// difference between mutation_nums for any two matching Genes
+		// in the Genome.
+		// Look at disjointedness and excess in the absolute (ignoring size)
+
+		return num_excess;
+
+	}
+
 	public double get_last_gene_innovnum() {
 		return (((Gene) genes.lastElement()).innovation_num + 1);
 	}

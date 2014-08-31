@@ -31,10 +31,16 @@ public class Experiment {
 		double[] d_vals = { 0.2 };
 		double[] p_vals = { 0.2 };
 		int n = 3;
-		int method = EnvConstant.NEAT;
+		int method = EnvConstant.TOPOLOGY_NEAT;
 
 		// run experiment
 		Experiment.runExperiments(method, s_vals, chi_vals, d_vals, p_vals, n);
+
+		// clear temporary files
+		File data2 = new File("..//nogui//data2");
+		File data3 = new File("..//nogui//data3");
+		for(File file: data2.listFiles()) file.delete();
+		for(File file: data3.listFiles()) file.delete();
 
 		// process results (get average performance for each setting)
 		Experiment.processResults(s_vals, chi_vals, d_vals, p_vals, n);

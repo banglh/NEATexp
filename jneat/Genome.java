@@ -232,11 +232,13 @@ public class Genome extends Neat {
 				if ((gene_total >= 10.0) && (num > endpart)) {
 					gausspoint = 0.5;
 					coldgausspoint = 0.3;
-				} else {
+				}
+				else {
 					if (NeatRoutine.randfloat() > 0.5) {
 						gausspoint = 1.0 - rate;
 						coldgausspoint = 1.0 - rate - 0.1;
-					} else {
+					}
+					else {
 						gausspoint = 1.0 - rate;
 						coldgausspoint = 1.0 - rate;
 					}
@@ -244,8 +246,7 @@ public class Genome extends Neat {
 			}
 
 			// choise a number from ]-1,+1[
-			randnum = NeatRoutine.randposneg() * NeatRoutine.randfloat()
-					* power * powermod;
+			randnum = NeatRoutine.randposneg() * NeatRoutine.randfloat() * power * powermod;
 
 			if (mutation_type == NeatConstant.GAUSSIAN) {
 				randchoice = NeatRoutine.randfloat(); // a number from ]0,1[
@@ -253,7 +254,8 @@ public class Genome extends Neat {
 					_gene.lnk.weight += randnum;
 				else if (randchoice > coldgausspoint)
 					_gene.lnk.weight = randnum;
-			} else if (mutation_type == NeatConstant.COLDGAUSSIAN)
+			}
+			else if (mutation_type == NeatConstant.COLDGAUSSIAN)
 				_gene.lnk.weight = randnum;
 
 			// copy to mutation_num, the current weight
@@ -318,13 +320,11 @@ public class Genome extends Neat {
 		}
 
 		if (genes.size() == 0) {
-			System.out
-					.print("\n ALERT : are a network whitout GENES; the result can unpredictable");
+			System.out.print("\n ALERT : are a network whitout GENES; the result can unpredictable");
 		}
 
 		if (outlist.size() == 0) {
-			System.out
-					.print("\n ALERT : are a network whitout OUTPUTS; the result can unpredictable");
+			System.out.print("\n ALERT : are a network whitout OUTPUTS; the result can unpredictable");
 			this.op_view();
 		}
 
@@ -342,8 +342,7 @@ public class Genome extends Neat {
 				// NOTE: This line could be run through a recurrency check if
 				// desired
 				// (no need to in the current implementation of NEAT)
-				newlink = new Link(curlink.weight, inode, onode,
-						curlink.is_recurrent);
+				newlink = new Link(curlink.weight, inode, onode, curlink.is_recurrent);
 				onode.incoming.add(newlink);
 				inode.outgoing.add(newlink);
 
@@ -411,10 +410,12 @@ public class Genome extends Neat {
 			if (j1 >= size1) {
 				num_excess += 1.0;
 				j2++;
-			} else if (j2 >= size2) {
+			}
+			else if (j2 >= size2) {
 				num_excess += 1.0;
 				j1++;
-			} else {
+			}
+			else {
 				_gene1 = (Gene) genes.elementAt(j1);
 				_gene2 = (Gene) g.genes.elementAt(j2);
 
@@ -424,15 +425,16 @@ public class Genome extends Neat {
 
 				if (p1innov == p2innov) {
 					num_matching += 1.0;
-					mut_diff = Math.abs(_gene1.mutation_num
-							- _gene2.mutation_num);
+					mut_diff = Math.abs(_gene1.mutation_num - _gene2.mutation_num);
 					mut_diff_total += mut_diff;
 					j1++;
 					j2++;
-				} else if (p1innov < p2innov) {
+				}
+				else if (p1innov < p2innov) {
 					j1++;
 					num_disjoint += 1.0;
-				} else if (p2innov < p1innov) {
+				}
+				else if (p2innov < p1innov) {
 					j2++;
 					num_disjoint += 1.0;
 				}
@@ -447,9 +449,163 @@ public class Genome extends Neat {
 		// in the Genome.
 		// Look at disjointedness and excess in the absolute (ignoring size)
 
-		return (Neat.p_disjoint_coeff * (num_disjoint / 1.0)
-				+ Neat.p_excess_coeff * (num_excess / 1.0) + Neat.p_mutdiff_coeff
-				* (mut_diff_total / num_matching));
+		return (Neat.p_disjoint_coeff * (num_disjoint / 1.0) + Neat.p_excess_coeff * (num_excess / 1.0) + Neat.p_mutdiff_coeff * (mut_diff_total / num_matching));
+
+	}
+
+	public double compatibility2(Genome g) {
+
+		// Innovation numbers
+		double p1innov;
+		double p2innov;
+
+		// Intermediate value
+		double mut_diff;
+
+		// Set up the counters
+		double num_disjoint = 0.0;
+		double num_excess = 0.0;
+		double mut_diff_total = 0.0;
+		double num_matching = 0.0; // Used to normalize mutation_num differences
+
+		Gene _gene1 = null;
+		Gene _gene2 = null;
+
+		double max_genome_size; // Size of larger Genome
+
+		// Get the length of the longest Genome for percentage computations
+		int size1 = genes.size();
+		int size2 = g.genes.size();
+		max_genome_size = Math.max(size1, size2);
+		// Now move through the Genes of each potential parent
+		// until both Genomes end
+		int j = 0;
+		int j1 = 0;
+		int j2 = 0;
+
+		for (j = 0; j < max_genome_size; j++) {
+
+			if (j1 >= size1) {
+				num_excess += 1.0;
+				j2++;
+			}
+			else if (j2 >= size2) {
+				num_excess += 1.0;
+				j1++;
+			}
+			else {
+				_gene1 = (Gene) genes.elementAt(j1);
+				_gene2 = (Gene) g.genes.elementAt(j2);
+
+				// Extract current innovation numbers
+				p1innov = _gene1.innovation_num;
+				p2innov = _gene2.innovation_num;
+
+				if (p1innov == p2innov) {
+					num_matching += 1.0;
+					mut_diff = Math.abs(_gene1.mutation_num - _gene2.mutation_num);
+					mut_diff_total += mut_diff;
+					j1++;
+					j2++;
+				}
+				else if (p1innov < p2innov) {
+					j1++;
+					num_disjoint += 1.0;
+				}
+				else if (p2innov < p1innov) {
+					j2++;
+					num_disjoint += 1.0;
+				}
+
+			}
+
+		}
+
+		// Return the compatibility number using compatibility formula
+		// Note that mut_diff_total/num_matching gives the AVERAGE
+		// difference between mutation_nums for any two matching Genes
+		// in the Genome.
+		// Look at disjointedness and excess in the absolute (ignoring size)
+
+		return num_disjoint;
+
+	}
+
+	public double compatibility3(Genome g) {
+
+		// Innovation numbers
+		double p1innov;
+		double p2innov;
+
+		// Intermediate value
+		double mut_diff;
+
+		// Set up the counters
+		double num_disjoint = 0.0;
+		double num_excess = 0.0;
+		double mut_diff_total = 0.0;
+		double num_matching = 0.0; // Used to normalize mutation_num differences
+
+		Gene _gene1 = null;
+		Gene _gene2 = null;
+
+		double max_genome_size; // Size of larger Genome
+
+		// Get the length of the longest Genome for percentage computations
+		int size1 = genes.size();
+		int size2 = g.genes.size();
+		max_genome_size = Math.max(size1, size2);
+		// Now move through the Genes of each potential parent
+		// until both Genomes end
+		int j = 0;
+		int j1 = 0;
+		int j2 = 0;
+
+		for (j = 0; j < max_genome_size; j++) {
+
+			if (j1 >= size1) {
+				num_excess += 1.0;
+				j2++;
+			}
+			else if (j2 >= size2) {
+				num_excess += 1.0;
+				j1++;
+			}
+			else {
+				_gene1 = (Gene) genes.elementAt(j1);
+				_gene2 = (Gene) g.genes.elementAt(j2);
+
+				// Extract current innovation numbers
+				p1innov = _gene1.innovation_num;
+				p2innov = _gene2.innovation_num;
+
+				if (p1innov == p2innov) {
+					num_matching += 1.0;
+					mut_diff = Math.abs(_gene1.mutation_num - _gene2.mutation_num);
+					mut_diff_total += mut_diff;
+					j1++;
+					j2++;
+				}
+				else if (p1innov < p2innov) {
+					j1++;
+					num_disjoint += 1.0;
+				}
+				else if (p2innov < p1innov) {
+					j2++;
+					num_disjoint += 1.0;
+				}
+
+			}
+
+		}
+
+		// Return the compatibility number using compatibility formula
+		// Note that mut_diff_total/num_matching gives the AVERAGE
+		// difference between mutation_nums for any two matching Genes
+		// in the Genome.
+		// Look at disjointedness and excess in the absolute (ignoring size)
+
+		return num_excess;
 
 	}
 
@@ -553,26 +709,20 @@ public class Genome extends Neat {
 			onode = _gene.lnk.out_node;
 
 			if (inode == null) {
-				System.out.println(" *ERROR* inode = null in genome #"
-						+ genome_id);
+				System.out.println(" *ERROR* inode = null in genome #" + genome_id);
 				return false;
 			}
 			if (onode == null) {
-				System.out.println(" *ERROR* onode = null in genome #"
-						+ genome_id);
+				System.out.println(" *ERROR* onode = null in genome #" + genome_id);
 				return false;
 			}
 			if (!nodes.contains(inode)) {
-				System.out
-						.println("Missing inode:  node defined in gene not found in Vector nodes of genome #"
-								+ genome_id);
+				System.out.println("Missing inode:  node defined in gene not found in Vector nodes of genome #" + genome_id);
 				System.out.print("\n the inode is=" + inode.node_id);
 				return false;
 			}
 			if (!nodes.contains(onode)) {
-				System.out
-						.println("Missing onode:  node defined in gene not found in Vector nodes of genome #"
-								+ genome_id);
+				System.out.println("Missing onode:  node defined in gene not found in Vector nodes of genome #" + genome_id);
 				System.out.print("\n the onode is=" + onode.node_id);
 				return false;
 			}
@@ -584,8 +734,7 @@ public class Genome extends Neat {
 			NNode _node = ((NNode) itr_node.next());
 			if (_node.node_id < last_id) {
 				System.out.println("ALERT: NODES OUT OF ORDER : ");
-				System.out.println(" last node_id is= " + last_id
-						+ " , current node_id=" + _node.node_id);
+				System.out.println(" last node_id is= " + last_id + " , current node_id=" + _node.node_id);
 				return false;
 			}
 			last_id = _node.node_id;
@@ -603,9 +752,7 @@ public class Genome extends Neat {
 			itr_gene1 = itr_gene;
 			while (itr_gene1.hasNext()) {
 				Gene _gene1 = ((Gene) itr_gene1.next());
-				if (_gene1.lnk.in_node.node_id == i1
-						&& _gene1.lnk.out_node.node_id == o1
-						&& _gene1.lnk.is_recurrent == r1) {
+				if (_gene1.lnk.in_node.node_id == i1 && _gene1.lnk.out_node.node_id == o1 && _gene1.lnk.is_recurrent == r1) {
 					System.out.print(" \n  ALERT: DUPLICATE GENES :");
 					System.out.print("  inp_node=" + i1 + " out_node=" + o1);
 					System.out.print("  in GENOME id -->" + genome_id);
@@ -628,8 +775,7 @@ public class Genome extends Neat {
 				Gene _gene = ((Gene) itr_gene.next());
 
 				if (!_gene.enable && disab) {
-					System.out.print("\n ALERT: 2 DISABLES IN A ROW: "
-							+ _gene.lnk.in_node.node_id);
+					System.out.print("\n ALERT: 2 DISABLES IN A ROW: " + _gene.lnk.in_node.node_id);
 					System.out.print(" inp node=" + _gene.lnk.in_node.node_id);
 					System.out.print(" out node=" + _gene.lnk.out_node.node_id);
 					System.out.print(" for GENOME " + genome_id);
@@ -661,7 +807,8 @@ public class Genome extends Neat {
 
 			print_to_file(xFile);
 
-		} catch (Throwable e) {
+		}
+		catch (Throwable e) {
 			System.err.println(e);
 		}
 
@@ -669,8 +816,7 @@ public class Genome extends Neat {
 
 	}
 
-	public Genome mate_multipoint(Genome g, int genomeid, double fitness1,
-			double fitness2) {
+	public Genome mate_multipoint(Genome g, int genomeid, double fitness1, double fitness2) {
 
 		Genome new_genome = null;
 		boolean disable = false; // Set to true if we want to disabled a chosen
@@ -770,12 +916,14 @@ public class Genome extends Neat {
 				j2++;
 				if (p1better)
 					skip = true; // Skip excess from the worse genome
-			} else if (j2 >= size2) {
+			}
+			else if (j2 >= size2) {
 				chosengene = (Gene) genes.elementAt(j1);
 				j1++;
 				if (!p1better)
 					skip = true; // Skip excess from the worse genome
-			} else {
+			}
+			else {
 
 				_p1gene = (Gene) genes.elementAt(j1);
 				_p2gene = (Gene) g.genes.elementAt(j2);
@@ -802,12 +950,14 @@ public class Genome extends Neat {
 					j1++;
 					j2++;
 
-				} else if (p1innov < p2innov) {
+				}
+				else if (p1innov < p2innov) {
 					chosengene = _p1gene;
 					j1++;
 					if (!p1better)
 						skip = true;
-				} else if (p2innov < p1innov) {
+				}
+				else if (p2innov < p1innov) {
 					chosengene = _p2gene;
 					j2++;
 					if (p1better)
@@ -827,16 +977,13 @@ public class Genome extends Neat {
 			while (itr_newgenes.hasNext()) {
 				_curgene2 = ((Gene) itr_newgenes.next());
 
-				if (_curgene2.lnk.in_node.node_id == chosengene.lnk.in_node.node_id
-						&& _curgene2.lnk.out_node.node_id == chosengene.lnk.out_node.node_id
+				if (_curgene2.lnk.in_node.node_id == chosengene.lnk.in_node.node_id && _curgene2.lnk.out_node.node_id == chosengene.lnk.out_node.node_id
 						&& _curgene2.lnk.is_recurrent == chosengene.lnk.is_recurrent) {
 					skip = true;
 					break;
 				}
-				if (_curgene2.lnk.in_node.node_id == chosengene.lnk.out_node.node_id
-						&& _curgene2.lnk.out_node.node_id == chosengene.lnk.in_node.node_id
-						&& !_curgene2.lnk.is_recurrent
-						&& !chosengene.lnk.is_recurrent) {
+				if (_curgene2.lnk.in_node.node_id == chosengene.lnk.out_node.node_id && _curgene2.lnk.out_node.node_id == chosengene.lnk.in_node.node_id
+						&& !_curgene2.lnk.is_recurrent && !chosengene.lnk.is_recurrent) {
 					skip = true;
 					break;
 				}
@@ -854,8 +1001,7 @@ public class Genome extends Neat {
 				if (chosengene.lnk.linktrait == null)
 					traitnum = first_traitnum;
 				else
-					traitnum = chosengene.lnk.linktrait.trait_id
-							- first_traitnum;
+					traitnum = chosengene.lnk.linktrait.trait_id - first_traitnum;
 
 				// Next check for the nodes, add them if not in the baby Genome
 				// already
@@ -893,8 +1039,7 @@ public class Genome extends Neat {
 						if (inode.nodetrait == null)
 							nodetraitnum = 0;
 						else
-							nodetraitnum = inode.nodetrait.trait_id
-									- first_traitnum;
+							nodetraitnum = inode.nodetrait.trait_id - first_traitnum;
 
 						newtrait = (Trait) newtraits.elementAt(nodetraitnum);
 						new_inode = new NNode(inode, newtrait);
@@ -924,8 +1069,7 @@ public class Genome extends Neat {
 						if (onode.nodetrait == null)
 							nodetraitnum = 0;
 						else
-							nodetraitnum = onode.nodetrait.trait_id
-									- first_traitnum;
+							nodetraitnum = onode.nodetrait.trait_id - first_traitnum;
 
 						newtrait = (Trait) newtraits.elementAt(nodetraitnum);
 						new_onode = new NNode(onode, newtrait);
@@ -959,8 +1103,7 @@ public class Genome extends Neat {
 						if (onode.nodetrait == null)
 							nodetraitnum = 0;
 						else
-							nodetraitnum = onode.nodetrait.trait_id
-									- first_traitnum;
+							nodetraitnum = onode.nodetrait.trait_id - first_traitnum;
 
 						newtrait = (Trait) newtraits.elementAt(nodetraitnum);
 						new_onode = new NNode(onode, newtrait);
@@ -990,8 +1133,7 @@ public class Genome extends Neat {
 						if (inode.nodetrait == null)
 							nodetraitnum = 0;
 						else
-							nodetraitnum = inode.nodetrait.trait_id
-									- first_traitnum;
+							nodetraitnum = inode.nodetrait.trait_id - first_traitnum;
 
 						newtrait = (Trait) newtraits.elementAt(nodetraitnum);
 						new_inode = new NNode(inode, newtrait);
@@ -1030,10 +1172,8 @@ public class Genome extends Neat {
 		}
 
 		if (!found) {
-			System.out
-					.print("\n *--------------- not found output node ----------------------------");
-			System.out
-					.print("\n * during mate_multipoint : please control the following's *********");
+			System.out.print("\n *--------------- not found output node ----------------------------");
+			System.out.print("\n * during mate_multipoint : please control the following's *********");
 			System.out.print("\n * control block : ");
 			System.out.print("\n Genome A= ");
 			this.op_view();
@@ -1048,8 +1188,7 @@ public class Genome extends Neat {
 		return new_genome;
 	}
 
-	public Genome mate_multipoint_avg(Genome g, int genomeid, double fitness1,
-			double fitness2) {
+	public Genome mate_multipoint_avg(Genome g, int genomeid, double fitness1, double fitness2) {
 
 		Genome new_genome = null;
 		boolean disable = false; // Set to true if we want to disabled a chosen
@@ -1087,8 +1226,7 @@ public class Genome extends Neat {
 		boolean skip = false;
 
 		// Set up the avgene
-		Gene avgene = new Gene((Trait) null, 0.0, (NNode) null, (NNode) null,
-				false, 0.0, 0.0);
+		Gene avgene = new Gene((Trait) null, 0.0, (NNode) null, (NNode) null, false, 0.0, 0.0);
 		// First, average the Traits from the 2 parents to form the baby's
 		// Traits
 		// It is assumed that trait vectors are the same length
@@ -1148,12 +1286,14 @@ public class Genome extends Neat {
 				j2++;
 				if (p1better)
 					skip = true; // Skip excess from the worse genome
-			} else if (j2 >= size2) {
+			}
+			else if (j2 >= size2) {
 				chosengene = (Gene) genes.elementAt(j1);
 				j1++;
 				if (!p1better)
 					skip = true; // Skip excess from the worse genome
-			} else {
+			}
+			else {
 
 				_p1gene = (Gene) genes.elementAt(j1);
 				_p2gene = (Gene) g.genes.elementAt(j2);
@@ -1205,12 +1345,14 @@ public class Genome extends Neat {
 					j1++;
 					j2++;
 
-				} else if (p1innov < p2innov) {
+				}
+				else if (p1innov < p2innov) {
 					chosengene = _p1gene;
 					j1++;
 					if (!p1better)
 						skip = true;
-				} else if (p2innov < p1innov) {
+				}
+				else if (p2innov < p1innov) {
 					chosengene = _p2gene;
 					j2++;
 					if (p1better)
@@ -1230,16 +1372,13 @@ public class Genome extends Neat {
 			while (itr_newgenes.hasNext()) {
 				_curgene2 = ((Gene) itr_newgenes.next());
 
-				if (_curgene2.lnk.in_node.node_id == chosengene.lnk.in_node.node_id
-						&& _curgene2.lnk.out_node.node_id == chosengene.lnk.out_node.node_id
+				if (_curgene2.lnk.in_node.node_id == chosengene.lnk.in_node.node_id && _curgene2.lnk.out_node.node_id == chosengene.lnk.out_node.node_id
 						&& _curgene2.lnk.is_recurrent == chosengene.lnk.is_recurrent) {
 					skip = true;
 					break;
 				}
-				if (_curgene2.lnk.in_node.node_id == chosengene.lnk.out_node.node_id
-						&& _curgene2.lnk.out_node.node_id == chosengene.lnk.in_node.node_id
-						&& !_curgene2.lnk.is_recurrent
-						&& !chosengene.lnk.is_recurrent) {
+				if (_curgene2.lnk.in_node.node_id == chosengene.lnk.out_node.node_id && _curgene2.lnk.out_node.node_id == chosengene.lnk.in_node.node_id
+						&& !_curgene2.lnk.is_recurrent && !chosengene.lnk.is_recurrent) {
 					skip = true;
 					break;
 				}
@@ -1258,8 +1397,7 @@ public class Genome extends Neat {
 				if (chosengene.lnk.linktrait == null)
 					traitnum = first_traitnum;
 				else
-					traitnum = chosengene.lnk.linktrait.trait_id
-							- first_traitnum;
+					traitnum = chosengene.lnk.linktrait.trait_id - first_traitnum;
 
 				// Next check for the nodes, add them if not in the baby Genome
 				// already
@@ -1294,8 +1432,7 @@ public class Genome extends Neat {
 						if (inode.nodetrait == null)
 							nodetraitnum = 0;
 						else
-							nodetraitnum = inode.nodetrait.trait_id
-									- first_traitnum;
+							nodetraitnum = inode.nodetrait.trait_id - first_traitnum;
 
 						newtrait = (Trait) newtraits.elementAt(nodetraitnum);
 						new_inode = new NNode(inode, newtrait);
@@ -1325,8 +1462,7 @@ public class Genome extends Neat {
 						if (onode.nodetrait == null)
 							nodetraitnum = 0;
 						else
-							nodetraitnum = onode.nodetrait.trait_id
-									- first_traitnum;
+							nodetraitnum = onode.nodetrait.trait_id - first_traitnum;
 
 						newtrait = (Trait) newtraits.elementAt(nodetraitnum);
 						new_onode = new NNode(onode, newtrait);
@@ -1360,8 +1496,7 @@ public class Genome extends Neat {
 						if (onode.nodetrait == null)
 							nodetraitnum = 0;
 						else
-							nodetraitnum = onode.nodetrait.trait_id
-									- first_traitnum;
+							nodetraitnum = onode.nodetrait.trait_id - first_traitnum;
 
 						newtrait = (Trait) newtraits.elementAt(nodetraitnum);
 						new_onode = new NNode(onode, newtrait);
@@ -1391,8 +1526,7 @@ public class Genome extends Neat {
 						if (inode.nodetrait == null)
 							nodetraitnum = 0;
 						else
-							nodetraitnum = inode.nodetrait.trait_id
-									- first_traitnum;
+							nodetraitnum = inode.nodetrait.trait_id - first_traitnum;
 
 						newtrait = (Trait) newtraits.elementAt(nodetraitnum);
 						new_inode = new NNode(inode, newtrait);
@@ -1487,8 +1621,7 @@ public class Genome extends Neat {
 		}
 
 		// Set up the avgene
-		Gene avgene = new Gene((Trait) null, 0.0, (NNode) null, (NNode) null,
-				false, 0.0, 0.0);
+		Gene avgene = new Gene((Trait) null, 0.0, (NNode) null, (NNode) null, false, 0.0, 0.0);
 
 		Vector newgenes = new Vector(genes.size(), 0);
 		Vector newnodes = new Vector(nodes.size(), 0);
@@ -1500,7 +1633,8 @@ public class Genome extends Neat {
 			len_genome = size2;
 			genomeA = genes;
 			genomeB = g.genes;
-		} else {
+		}
+		else {
 			crosspoint = NeatRoutine.randint(0, size2 - 1);
 			stopA = size2;
 			stopB = size1;
@@ -1557,12 +1691,14 @@ public class Genome extends Neat {
 					cellA = v1;
 					cellB = 0.0;
 					j1++;
-				} else if (v1 == v2) {
+				}
+				else if (v1 == v2) {
 					cellA = v1;
 					cellB = v1;
 					j1++;
 					j2++;
-				} else {
+				}
+				else {
 					cellA = 0.0;
 					cellB = v2;
 					j2++;
@@ -1574,11 +1710,13 @@ public class Genome extends Neat {
 					cellA = v1;
 					cellB = 0.0;
 					j1++;
-				} else if (!doneA && doneB) {
+				}
+				else if (!doneA && doneB) {
 					cellA = 0.0;
 					cellB = v2;
 					j2++;
-				} else
+				}
+				else
 					done = true;
 			}
 
@@ -1592,7 +1730,8 @@ public class Genome extends Neat {
 					if (genecounter < crosspoint) {
 						chosengene = geneA;
 						genecounter++;
-					} else if (genecounter == crosspoint) {
+					}
+					else if (genecounter == crosspoint) {
 						if (NeatRoutine.randfloat() > 0.5)
 							avgene.lnk.linktrait = geneA.lnk.linktrait;
 						else
@@ -1629,7 +1768,8 @@ public class Genome extends Neat {
 						chosengene = avgene;
 						genecounter++;
 						cross_innov = cellA;
-					} else if (genecounter > crosspoint) {
+					}
+					else if (genecounter > crosspoint) {
 						chosengene = geneB;
 						genecounter++;
 					}
@@ -1643,15 +1783,18 @@ public class Genome extends Neat {
 					if (genecounter < crosspoint) {
 						chosengene = geneA; // make geneA
 						genecounter++;
-					} else if (genecounter == crosspoint) {
+					}
+					else if (genecounter == crosspoint) {
 						chosengene = geneA;
 						genecounter++;
 						cross_innov = cellA;
-					} else if (genecounter > crosspoint) {
+					}
+					else if (genecounter > crosspoint) {
 						if (cross_innov > last_innovB) {
 							chosengene = geneA;
 							genecounter++;
-						} else {
+						}
+						else {
 							skip = true;
 						}
 					}
@@ -1665,13 +1808,16 @@ public class Genome extends Neat {
 					if (cellA == 0 && cellB != 0) {
 						if (genecounter < crosspoint) {
 							skip = true; // skip geneB
-						} else if (genecounter == crosspoint) {
+						}
+						else if (genecounter == crosspoint) {
 							skip = true; // skip an illogic case
-						} else if (genecounter > crosspoint) {
+						}
+						else if (genecounter > crosspoint) {
 							if (cross_innov > last_innovB) {
 								chosengene = geneA; // make geneA
 								genecounter++;
-							} else {
+							}
+							else {
 								chosengene = geneB; // make geneB : this is a
 													// pure case o single
 													// crossing
@@ -1687,17 +1833,14 @@ public class Genome extends Neat {
 				while (itr_newgenes.hasNext()) {
 					_curgene2 = ((Gene) itr_newgenes.next());
 
-					if (_curgene2.lnk.in_node.node_id == chosengene.lnk.in_node.node_id
-							&& _curgene2.lnk.out_node.node_id == chosengene.lnk.out_node.node_id
+					if (_curgene2.lnk.in_node.node_id == chosengene.lnk.in_node.node_id && _curgene2.lnk.out_node.node_id == chosengene.lnk.out_node.node_id
 							&& _curgene2.lnk.is_recurrent == chosengene.lnk.is_recurrent) {
 						skip = true;
 						break;
 					}
 
-					if (_curgene2.lnk.in_node.node_id == chosengene.lnk.out_node.node_id
-							&& _curgene2.lnk.out_node.node_id == chosengene.lnk.in_node.node_id
-							&& !_curgene2.lnk.is_recurrent
-							&& !chosengene.lnk.is_recurrent) {
+					if (_curgene2.lnk.in_node.node_id == chosengene.lnk.out_node.node_id && _curgene2.lnk.out_node.node_id == chosengene.lnk.in_node.node_id
+							&& !_curgene2.lnk.is_recurrent && !chosengene.lnk.is_recurrent) {
 						skip = true;
 						break;
 					}
@@ -1712,8 +1855,7 @@ public class Genome extends Neat {
 					if (chosengene.lnk.linktrait == null)
 						traitnum = first_traitnum;
 					else
-						traitnum = chosengene.lnk.linktrait.trait_id
-								- first_traitnum;
+						traitnum = chosengene.lnk.linktrait.trait_id - first_traitnum;
 
 					// Next check for the nodes, add them if not in the baby
 					// Genome already
@@ -1745,10 +1887,8 @@ public class Genome extends Neat {
 							if (inode.nodetrait == null)
 								nodetraitnum = 0;
 							else
-								nodetraitnum = inode.nodetrait.trait_id
-										- first_traitnum;
-							newtrait = (Trait) newtraits
-									.elementAt(nodetraitnum);
+								nodetraitnum = inode.nodetrait.trait_id - first_traitnum;
+							newtrait = (Trait) newtraits.elementAt(nodetraitnum);
 							new_inode = new NNode(inode, newtrait);
 							// insert in newnodes list
 							node_insert(newnodes, new_inode);
@@ -1773,10 +1913,8 @@ public class Genome extends Neat {
 							if (onode.nodetrait == null)
 								nodetraitnum = 0;
 							else
-								nodetraitnum = onode.nodetrait.trait_id
-										- first_traitnum;
-							newtrait = (Trait) newtraits
-									.elementAt(nodetraitnum);
+								nodetraitnum = onode.nodetrait.trait_id - first_traitnum;
+							newtrait = (Trait) newtraits.elementAt(nodetraitnum);
 							new_onode = new NNode(onode, newtrait);
 							// insert in newnodes list
 							node_insert(newnodes, new_onode);
@@ -1803,10 +1941,8 @@ public class Genome extends Neat {
 							if (onode.nodetrait == null)
 								nodetraitnum = 0;
 							else
-								nodetraitnum = onode.nodetrait.trait_id
-										- first_traitnum;
-							newtrait = (Trait) newtraits
-									.elementAt(nodetraitnum);
+								nodetraitnum = onode.nodetrait.trait_id - first_traitnum;
+							newtrait = (Trait) newtraits.elementAt(nodetraitnum);
 							new_onode = new NNode(onode, newtrait);
 							// insert in newnodes list
 							node_insert(newnodes, new_onode);
@@ -1832,11 +1968,9 @@ public class Genome extends Neat {
 							if (inode.nodetrait == null)
 								nodetraitnum = 0;
 							else
-								nodetraitnum = inode.nodetrait.trait_id
-										- first_traitnum;
+								nodetraitnum = inode.nodetrait.trait_id - first_traitnum;
 
-							newtrait = (Trait) newtraits
-									.elementAt(nodetraitnum);
+							newtrait = (Trait) newtraits.elementAt(nodetraitnum);
 							new_inode = new NNode(inode, newtrait);
 
 							// insert in newnodes list
@@ -1846,8 +1980,7 @@ public class Genome extends Neat {
 
 					// Add the Gene
 					newtrait = (Trait) newtraits.elementAt(traitnum);
-					newgene = new Gene(chosengene, newtrait, new_inode,
-							new_onode);
+					newgene = new Gene(chosengene, newtrait, new_inode, new_onode);
 					newgenes.add(newgene);
 
 				} // end of block gene creation if !skip
@@ -1995,9 +2128,7 @@ public class Genome extends Neat {
 				done = false;
 				for (int j = 0; j < len_gene; j++) {
 					_jgene = (Gene) genes.elementAt(j);
-					if ((_gene.lnk.in_node == _jgene.lnk.in_node)
-							&& _jgene.enable
-							&& (_jgene.innovation_num != _gene.innovation_num)) {
+					if ((_gene.lnk.in_node == _jgene.lnk.in_node) && _jgene.enable && (_jgene.innovation_num != _gene.innovation_num)) {
 						done = true;
 						break;
 					}
@@ -2006,7 +2137,8 @@ public class Genome extends Neat {
 				if (done)
 					_gene.enable = false;
 
-			} else
+			}
+			else
 				_gene.enable = true;
 		}
 
@@ -2094,13 +2226,12 @@ public class Genome extends Neat {
 					loop_recur = false;
 
 				if (loop_recur) {
-					nodenum1 = NeatRoutine.randint(first_nonsensor,
-							nodes.size() - 1);
+					nodenum1 = NeatRoutine.randint(first_nonsensor, nodes.size() - 1);
 					nodenum2 = nodenum1;
-				} else {
+				}
+				else {
 					nodenum1 = NeatRoutine.randint(0, nodes.size() - 1);
-					nodenum2 = NeatRoutine.randint(first_nonsensor,
-							nodes.size() - 1);
+					nodenum2 = NeatRoutine.randint(first_nonsensor, nodes.size() - 1);
 				}
 
 			}
@@ -2109,8 +2240,7 @@ public class Genome extends Neat {
 			//
 			else {
 				nodenum1 = NeatRoutine.randint(0, nodes.size() - 1);
-				nodenum2 = NeatRoutine.randint(first_nonsensor,
-						nodes.size() - 1);
+				nodenum2 = NeatRoutine.randint(first_nonsensor, nodes.size() - 1);
 
 			}
 
@@ -2130,16 +2260,12 @@ public class Genome extends Neat {
 					bypass = true;
 					break;
 				}
-				if (_gene.lnk.in_node == thenode1
-						&& _gene.lnk.out_node == thenode2
-						&& _gene.lnk.is_recurrent && do_recur) {
+				if (_gene.lnk.in_node == thenode1 && _gene.lnk.out_node == thenode2 && _gene.lnk.is_recurrent && do_recur) {
 					bypass = true;
 					break;
 				}
 
-				if (_gene.lnk.in_node == thenode1
-						&& _gene.lnk.out_node == thenode2
-						&& !_gene.lnk.is_recurrent && !do_recur) {
+				if (_gene.lnk.in_node == thenode1 && _gene.lnk.out_node == thenode2 && !_gene.lnk.is_recurrent && !do_recur) {
 					bypass = true;
 					break;
 				}
@@ -2149,12 +2275,10 @@ public class Genome extends Neat {
 			if (!bypass) {
 
 				phenotype.status = 0;
-				recurflag = phenotype.has_a_path(thenode1.analogue,
-						thenode2.analogue, 0, thresh);
+				recurflag = phenotype.has_a_path(thenode1.analogue, thenode2.analogue, 0, thresh);
 
 				if (phenotype.status == 8) {
-					System.out
-							.println("\n  network.mutate_add_link : LOOP DETECTED DURING A RECURRENCY CHECK");
+					System.out.println("\n  network.mutate_add_link : LOOP DETECTED DURING A RECURRENCY CHECK");
 					return false;
 				}
 
@@ -2190,8 +2314,7 @@ public class Genome extends Neat {
 					// error
 					// Note: This should never happen- if it does there is a bug
 					if (phenotype == null) {
-						System.out
-								.print("ERROR: Attempt to add link to genome with no phenotype");
+						System.out.print("ERROR: Attempt to add link to genome with no phenotype");
 						return false;
 					}
 
@@ -2200,22 +2323,16 @@ public class Genome extends Neat {
 
 					// Choose the new weight
 					// newweight=(gaussrand())/1.5; //Could use a gaussian
-					new_weight = NeatRoutine.randposneg()
-							* NeatRoutine.randfloat() * 10.0;
+					new_weight = NeatRoutine.randposneg() * NeatRoutine.randfloat() * 10.0;
 
 					// read from population current innovation value
 
 					// read curr innovation with postincrement
 					double curr_innov = pop.getCurr_innov_num_and_increment();
 					// Create the new gene
-					new_gene = new Gene((Trait) traits.elementAt(traitnum),
-							new_weight, thenode1, thenode2, do_recur,
-							curr_innov, new_weight);
+					new_gene = new Gene((Trait) traits.elementAt(traitnum), new_weight, thenode1, thenode2, do_recur, curr_innov, new_weight);
 					// Add the innovation
-					pop.innovations
-							.add(new Innovation(thenode1.node_id,
-									thenode2.node_id, curr_innov, new_weight,
-									traitnum));
+					pop.innovations.add(new Innovation(thenode1.node_id, thenode2.node_id, curr_innov, new_weight, traitnum));
 					done = true;
 
 				}
@@ -2223,15 +2340,10 @@ public class Genome extends Neat {
 				// OTHERWISE, match the innovation in the innovs list
 				else {
 					Innovation _innov = ((Innovation) itr_innovation.next());
-					if ((_innov.innovation_type == NeatConstant.NEWLINK)
-							&& (_innov.node_in_id == thenode1.node_id)
-							&& (_innov.node_out_id == thenode2.node_id)
+					if ((_innov.innovation_type == NeatConstant.NEWLINK) && (_innov.node_in_id == thenode1.node_id) && (_innov.node_out_id == thenode2.node_id)
 							&& (_innov.recur_flag == do_recur)) {
 
-						new_gene = new Gene(
-								(Trait) traits.elementAt(_innov.new_traitnum),
-								_innov.new_weight, thenode1, thenode2,
-								do_recur, _innov.innovation_num1, 0);
+						new_gene = new Gene((Trait) traits.elementAt(_innov.new_traitnum), _innov.new_weight, thenode1, thenode2, do_recur, _innov.innovation_num1, 0);
 						done = true;
 					}
 				}
@@ -2277,15 +2389,13 @@ public class Genome extends Neat {
 			step2 = false;
 			for (j = 0; j < genes.size(); j++) {
 				_gene = (Gene) genes.elementAt(j);
-				if (_gene.enable
-						&& (_gene.lnk.in_node.gen_node_label != NeatConstant.BIAS))
+				if (_gene.enable && (_gene.lnk.in_node.gen_node_label != NeatConstant.BIAS))
 					break;
 			}
 
 			for (; j < genes.size(); j++) {
 				_gene = (Gene) genes.elementAt(j);
-				if ((NeatRoutine.randfloat() >= 0.3)
-						&& (_gene.lnk.in_node.gen_node_label != NeatConstant.BIAS)) {
+				if ((NeatRoutine.randfloat() >= 0.3) && (_gene.lnk.in_node.gen_node_label != NeatConstant.BIAS)) {
 					step2 = true;
 					break;
 				}
@@ -2296,13 +2406,13 @@ public class Genome extends Neat {
 
 			}
 
-		} else {
+		}
+		else {
 			while ((trycount < 20) && (!found)) {
 				// Pure random splittingNeatRoutine.randint
 				genenum = NeatRoutine.randint(0, genes.size() - 1);
 				_gene = (Gene) genes.elementAt(genenum);
-				if (_gene.enable
-						&& (_gene.lnk.in_node.gen_node_label != NeatConstant.BIAS))
+				if (_gene.enable && (_gene.lnk.in_node.gen_node_label != NeatConstant.BIAS))
 					found = true;
 				++trycount;
 
@@ -2341,47 +2451,37 @@ public class Genome extends Neat {
 				int curnode_id = pop.getCur_node_id_and_increment();
 
 				// pass this current nodeid to newnode and create the new node
-				new_node = new NNode(NeatConstant.NEURON, curnode_id,
-						NeatConstant.HIDDEN);
+				new_node = new NNode(NeatConstant.NEURON, curnode_id, NeatConstant.HIDDEN);
 				new_node.nodetrait = (Trait) traits.firstElement();
 
 				// get the current gene inovation with post increment
 				gene_innov1 = pop.getCurr_innov_num_and_increment();
 
 				// create gene with the current gene inovation
-				newgene1 = new Gene(traitptr, 1.0, in_node, new_node,
-						thelink.is_recurrent, gene_innov1, 0);
+				newgene1 = new Gene(traitptr, 1.0, in_node, new_node, thelink.is_recurrent, gene_innov1, 0);
 
 				// re-read the current innovation with increment
 				gene_innov2 = pop.getCurr_innov_num_and_increment();
 
 				// create the second gene with this innovation incremented
-				newgene2 = new Gene(traitptr, oldweight, new_node, out_node,
-						false, gene_innov2, 0);
+				newgene2 = new Gene(traitptr, oldweight, new_node, out_node, false, gene_innov2, 0);
 
-				pop.innovations.add(new Innovation(in_node.node_id,
-						out_node.node_id, gene_innov1, gene_innov2,
-						new_node.node_id, _gene.innovation_num));
+				pop.innovations.add(new Innovation(in_node.node_id, out_node.node_id, gene_innov1, gene_innov2, new_node.node_id, _gene.innovation_num));
 				done = true;
 			}
 			// end for new innovation case
 			else {
 				Innovation _innov = ((Innovation) itr_innovation.next());
 
-				if ((_innov.innovation_type == NeatConstant.NEWNODE)
-						&& (_innov.node_in_id == in_node.node_id)
-						&& (_innov.node_out_id == out_node.node_id)
+				if ((_innov.innovation_type == NeatConstant.NEWNODE) && (_innov.node_in_id == in_node.node_id) && (_innov.node_out_id == out_node.node_id)
 						&& (_innov.old_innov_num == _gene.innovation_num)) {
 					// Create the new Genes
 					// pass this current nodeid to newnode
-					new_node = new NNode(NeatConstant.NEURON,
-							_innov.newnode_id, NeatConstant.HIDDEN);
+					new_node = new NNode(NeatConstant.NEURON, _innov.newnode_id, NeatConstant.HIDDEN);
 					new_node.nodetrait = (Trait) traits.firstElement();
 
-					newgene1 = new Gene(traitptr, 1.0, in_node, new_node,
-							thelink.is_recurrent, _innov.innovation_num1, 0);
-					newgene2 = new Gene(traitptr, oldweight, new_node,
-							out_node, false, _innov.innovation_num2, 0);
+					newgene1 = new Gene(traitptr, 1.0, in_node, new_node, thelink.is_recurrent, _innov.innovation_num1, 0);
+					newgene2 = new Gene(traitptr, oldweight, new_node, out_node, false, _innov.innovation_num2, 0);
 					done = true;
 
 				}
@@ -2407,8 +2507,7 @@ public class Genome extends Neat {
 	 * o) r = the network can have a nodes recurrent ? linkprob = probability of
 	 * a link from nodes ( must be in interval ]0,1[);
 	 */
-	public Genome(int new_id, int i, int o, int n, int nmax, boolean r,
-			double linkprob) {
+	public Genome(int new_id, int i, int o, int n, int nmax, boolean r, double linkprob) {
 		int totalnodes = 0;
 		int matrixdim = 0;
 		int maxnode = 0;
@@ -2474,11 +2573,9 @@ public class Genome extends Neat {
 		// Build the input nodes
 		for (count = 1; count <= i; count++) {
 			if (count < i)
-				newnode = new NNode(NeatConstant.SENSOR, count,
-						NeatConstant.INPUT);
+				newnode = new NNode(NeatConstant.SENSOR, count, NeatConstant.INPUT);
 			else
-				newnode = new NNode(NeatConstant.SENSOR, count,
-						NeatConstant.BIAS);
+				newnode = new NNode(NeatConstant.SENSOR, count, NeatConstant.BIAS);
 
 			newnode.nodetrait = newtrait;
 			// Add the node to the list of nodes
@@ -2523,8 +2620,7 @@ public class Genome extends Neat {
 			}
 
 			if (abort >= 700) {
-				System.out
-						.print("\n SEVERE ERROR in genome random creation costructor : genome has not created");
+				System.out.print("\n SEVERE ERROR in genome random creation costructor : genome has not created");
 				System.exit(12);
 			}
 
@@ -2539,7 +2635,8 @@ public class Genome extends Neat {
 				if (NeatRoutine.randfloat() < linkprob) {
 					ccount++;
 					cmp[count] = true;
-				} else
+				}
+				else
 					cmp[count] = false;
 			}
 
@@ -2555,9 +2652,7 @@ public class Genome extends Neat {
 			for (col = 1; col <= totalnodes; col++) {
 				for (row = 1; row <= totalnodes; row++) {
 
-					if ((cmp[innov_number] && (col > i))
-							&& ((col <= maxnode) || (col >= first_output))
-							&& ((row <= maxnode) || (row >= first_output))) {
+					if ((cmp[innov_number] && (col > i)) && ((col <= maxnode) || (col >= first_output)) && ((row <= maxnode) || (row >= first_output))) {
 						// If it isn't recurrent, create the connection no
 						// matter what
 
@@ -2586,11 +2681,8 @@ public class Genome extends Neat {
 								}
 							}
 							// Create the gene + link
-							new_weight = NeatRoutine.randposneg()
-									* NeatRoutine.randfloat();
-							newgene = new Gene(newtrait, new_weight, in_node,
-									out_node, flag_recurrent, innov_number,
-									new_weight);
+							new_weight = NeatRoutine.randposneg() * NeatRoutine.randfloat();
+							newgene = new Gene(newtrait, new_weight, in_node, out_node, flag_recurrent, innov_number, new_weight);
 							// Add the gene to the genome
 							genes.add(newgene);
 						}
@@ -2670,12 +2762,14 @@ public class Genome extends Neat {
 				newtrait = new Trait(xline);
 				traits.addElement(newtrait);
 
-			} else if (curword.equals("node")) {
+			}
+			else if (curword.equals("node")) {
 				NNode newnode;
 				newnode = new NNode(xline, traits);
 				nodes.addElement(newnode);
 
-			} else if (curword.equals("gene")) {
+			}
+			else if (curword.equals("gene")) {
 				Gene newgene;
 				newgene = new Gene(xline, traits, nodes);
 				genes.addElement(newgene);
@@ -2753,7 +2847,8 @@ public class Genome extends Neat {
 			stopB = size2;
 			genomeA = genes;
 			genomeB = g.genes;
-		} else {
+		}
+		else {
 			stopA = size2;
 			stopB = size1;
 			genomeA = g.genes;
@@ -2806,12 +2901,14 @@ public class Genome extends Neat {
 						v3[j][0] = v1;
 						v3[j][1] = 0.0;
 						j1++;
-					} else if (v1 == v2) {
+					}
+					else if (v1 == v2) {
 						v3[j][0] = v1;
 						v3[j][1] = v1;
 						j1++;
 						j2++;
-					} else {
+					}
+					else {
 						v3[j][0] = 0.0;
 						v3[j][1] = v2;
 						j2++;
@@ -2823,11 +2920,13 @@ public class Genome extends Neat {
 						v3[j][0] = v1;
 						v3[j][1] = 0.0;
 						j1++;
-					} else if (!doneA && doneB) {
+					}
+					else if (!doneA && doneB) {
 						v3[j][0] = 0.0;
 						v3[j][1] = v2;
 						j2++;
-					} else
+					}
+					else
 						done = true;
 				}
 
@@ -2841,11 +2940,13 @@ public class Genome extends Neat {
 						if (genecounter < crosspoint) {
 							vr[j] = 1;
 							genecounter++;
-						} else if (genecounter == crosspoint) {
+						}
+						else if (genecounter == crosspoint) {
 							vr[j] = 3;
 							genecounter++;
 							cross_innov = v3[j][0];
-						} else if (genecounter > crosspoint) {
+						}
+						else if (genecounter > crosspoint) {
 							vr[j] = 2;
 							genecounter++;
 						}
@@ -2859,11 +2960,13 @@ public class Genome extends Neat {
 						if (genecounter < crosspoint) {
 							vr[j] = 1; // v3[j][0];
 							genecounter++;
-						} else if (genecounter == crosspoint) {
+						}
+						else if (genecounter == crosspoint) {
 							vr[j] = 1; // v3[j][1])
 							genecounter++;
 							cross_innov = v3[j][0];
-						} else if (genecounter > crosspoint) {
+						}
+						else if (genecounter > crosspoint) {
 
 							if (cross_innov > last_innovB) {
 								vr[j] = 1;
@@ -2879,7 +2982,8 @@ public class Genome extends Neat {
 					else if (v3[j][0] == 0 && v3[j][1] != 0) {
 						if (genecounter < crosspoint) {
 							vr[j] = 0; // skip v3[j][0];
-						} else if (genecounter == crosspoint) {
+						}
+						else if (genecounter == crosspoint) {
 							vr[j] = 0; // skip
 						}
 
@@ -2887,7 +2991,8 @@ public class Genome extends Neat {
 							if (cross_innov > last_innovB) {
 								vr[j] = 1; // v3[j][1];
 								genecounter++;
-							} else {
+							}
+							else {
 								vr[j] = 2;
 								genecounter++;
 							}
@@ -2955,15 +3060,15 @@ public class Genome extends Neat {
 
 			print_to_file(xFile);
 
-		} catch (Throwable e) {
+		}
+		catch (Throwable e) {
 			System.err.println(e);
 		}
 
 		xFile.IOseqCloseW();
 	}
 
-	public static void createNewGenomeFile(String fileName, int inpNum,
-			int outNum) {
+	public static void createNewGenomeFile(String fileName, int inpNum, int outNum) {
 		int geneNum = (inpNum + 1) * outNum;
 
 		IOseq xFile;
@@ -3009,11 +3114,12 @@ public class Genome extends Neat {
 					xFile.IOseqWrite(str);
 				}
 			}
-			
+
 			// end line
 			str = "genomeend 1";
 			xFile.IOseqWrite(str);
-		} catch (Throwable e) {
+		}
+		catch (Throwable e) {
 			System.err.println(e);
 		}
 

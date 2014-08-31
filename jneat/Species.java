@@ -12,7 +12,11 @@ public class Species extends Neat {
 	 * id(-entification) of this species
 	 */
 	int id;
-
+	
+	// specieNEAT
+	int generation = 0;
+	////////////
+	
 	/**
 	 * The age of the Species
 	 */
@@ -48,6 +52,14 @@ public class Species extends Neat {
 	 */
 	boolean checked;
 
+	// specieNEAT
+	double fitlate;
+
+	double prefit;
+
+	int rank;
+	//////////////
+
 	/**
 	 * list of all organisms in the Species
 	 */
@@ -58,6 +70,11 @@ public class Species extends Neat {
 	 * goes extinct.
 	 */
 	int age_of_last_improvement;
+	
+	// specieNEAT
+	double disjointnum = 0.0;
+	double excessnum = 0.0;
+	//////////////
 
 	public int getId() {
 		return id;
@@ -151,12 +168,45 @@ public class Species extends Neat {
 		age_of_last_improvement = 0;
 		max_fitness = 0;
 		max_fitness_ever = 0;
+		
+		// specieNEAT
+		fitlate = 0.0;
+		prefit = 0.0;
+		rank = 0;
+		////////////
 
 	}
 
 	/**
 	 * add an organism to list of organisms in this specie
 	 */
+	
+	// specieNEAT
+	public double compute_disjoint(Organism kizyun) {
+		double disjoint = 0.0;
+		Organism _organism = null;
+		_organism = (Organism) organisms.elementAt(0);
+		disjoint = _organism.getGenome().compatibility2(kizyun.getGenome());
+		// System.out.println("Ží"+kizyun.getSpecies().id+"‚ÆŽí"+id+"‚ÌDisjoint’l‚Í"+disjoint);
+		return disjoint;
+
+	}
+
+	public double compute_excess(Organism kizyun) {
+		double excess = 0.0;
+		Organism _organism = null;
+		_organism = (Organism) organisms.elementAt(0);
+		excess = _organism.getGenome().compatibility3(kizyun.getGenome());
+		// System.out.println("Ží"+kizyun.getSpecies().id+"‚ÆŽí"+id+"‚ÌExcess’l‚Í"+excess);
+		return excess;
+
+	}
+
+	public void set_DisExc(double disjoint, double excess) {
+		disjointnum = disjoint;
+		excessnum = excess;
+	}
+	///////////////////////
 
 	public void add_Organism(Organism xorganism) {
 		organisms.add(xorganism);
@@ -168,7 +218,10 @@ public class Species extends Neat {
 	 * the Species, so that fitness is "shared" by the species At end mark the
 	 * organisms can be eliminated from this specie
 	 */
-	public void adjust_fitness() {
+	// specieNEAT
+	public void adjust_fitness(Organism selectorganism, double maxdist, int maxsize, int minsize, int centersize) {
+//		public void adjust_fitness() {	// original NEAT
+		////////////////
 
 		Iterator itr_organism;
 		Organism _organism = null;
@@ -181,6 +234,10 @@ public class Species extends Neat {
 			age_debt = 1;
 
 		int size1 = organisms.size();
+		
+		// specieNEAT
+		double seikika = 0.0;
+		////////////////
 
 		for (j = 0; j < size1; j++) {
 			_organism = (Organism) organisms.elementAt(j);
@@ -204,9 +261,34 @@ public class Species extends Neat {
 			if (_organism.fitness < 0.0)
 				_organism.fitness = 0.0001;
 			// Share fitness with the species
-			_organism.fitness = _organism.fitness / size1;
+//			_organism.fitness = _organism.fitness / size1;	// original NEAT
+
+			// specieNEAT
+			double curr_compat = _organism.getGenome().compatibility(selectorganism.getGenome());
+			seikika = (curr_compat - 0) / (maxdist - 0);
+
+			// System.out.println("ƒTƒCƒY‚Í"+maxsize);
+			// _organism.fitness = _organism.fitness * curr_compat;
+			if (seikika == 1) {
+				seikika = 0.99;
+			}
+
+			if (rank == 1) {
+				_organism.fitness = _organism.fitness / minsize;
+			}
+			else if (rank == 2) {
+				_organism.fitness = _organism.fitness / centersize;
+			}
+			else {
+				_organism.fitness = _organism.fitness / maxsize;
+			}
+
+			// _organism.fitness = _organism.fitness *
+			// ((double)maxsize*(1-seikika));
+			// _organism.fitness = _organism.fitness / size1;
 
 		}
+		///////////////////////////////////
 
 		// Sort the population and mark for death those after survival_thresh *
 		// pop_size
@@ -227,8 +309,7 @@ public class Species extends Neat {
 		// is not greater
 		// than the argument and is equal to a mathematical integer
 
-		num_parents = (int) Math
-				.floor((Neat.p_survival_thresh * ((double) size1)) + 1.0);
+		num_parents = (int) Math.floor((Neat.p_survival_thresh * ((double) size1)) + 1.0);
 
 		// Mark for death those who are ranked too low to be parents
 		// Mark the champ as such
@@ -255,6 +336,107 @@ public class Species extends Neat {
 	 * summary / (number of organisms) this is an average fitness for this
 	 * specie
 	 */
+
+	// specieNEAT
+	public Organism compute() {
+		int size1 = organisms.size();
+		Organism _organism = null;
+		int j = 0;
+		int select = 0;
+		double max = 0.0;
+		max = 0.0;
+		select = 0;
+		for (j = 0; j < size1; j++) {
+			_organism = (Organism) organisms.elementAt(j);
+			// System.out.println("Ží"+id+"•]‰¿‚Í"+_organism.fitness);
+			if (_organism.fitness > max) {
+				select = j;
+				max = _organism.fitness;
+			}
+			else {
+
+			}
+		}
+
+		return (Organism) organisms.elementAt(select);
+	}
+
+	public double compute_average_fitness2() {
+
+		Iterator itr_organism;
+		itr_organism = organisms.iterator();
+		double total = 0.0;
+		int size1 = organisms.size();
+		double max = 0.0;
+
+		while (itr_organism.hasNext()) {
+			Organism _organism = ((Organism) itr_organism.next());
+			total += _organism.fitness;
+		}
+
+		max = total / (double) size1;
+		return max;
+
+	}
+
+	public double maxdistance(double max, Organism selectorganism) {
+
+		Iterator itr_organism;
+		Organism _organism = null;
+
+		int j = 0;
+		int size1 = organisms.size();
+		for (j = 0; j < size1; j++) {
+			_organism = (Organism) organisms.elementAt(j);
+			double curr_compat = _organism.getGenome().compatibility(selectorganism.getGenome());
+			// System.out.println("Ží"+id+"‚ÆŒÂ‘Ì‚Ì‹——£‚Í"+curr_compat);
+			if (curr_compat > max) {
+				max = curr_compat;
+			}
+		}
+
+		return max;
+	}
+
+	public void compute_fitness_late() {
+		if (prefit == 0.0) {
+			prefit = ave_fitness;
+			fitlate = 1.0;
+		}
+		else {
+			fitlate = ave_fitness / prefit;
+			prefit = ave_fitness;
+		}
+	}
+
+	public int compute_rank_fitnesslate() {
+		int rank = 0;
+		rank = 0;
+		if (fitlate < 1.0) {
+			rank = 1;
+		}
+		else if (fitlate == 1.0) {
+			rank = 2;
+		}
+		else {
+			rank = 3;
+		}
+		return rank;
+	}
+
+	public void compute_rank(int totalrank) {
+		if (totalrank == 1) {
+			rank = 3;
+		}
+		else if (totalrank == 2) {
+			rank = 2;
+		}
+		else {
+			rank = 1;
+		}
+	}
+	/////////////////////////////////////////
+
 	public void compute_average_fitness() {
 
 		Iterator itr_organism;
@@ -275,6 +457,19 @@ public class Species extends Neat {
 	 * Read all organisms in this specie and return the maximum fitness of all
 	 * organisms.
 	 */
+
+	// specieNEAT
+	public Organism computekizyun() {
+		int size1 = organisms.size();
+		int j = 0;
+		int select = 0;
+		double max = 0.0;
+		select = 0;
+
+		return (Organism) organisms.elementAt(select);
+	}
+	///////////////////////////
+
 	public void compute_max_fitness() {
 		double max = 0.0;
 		double total = 0.0;
@@ -289,6 +484,12 @@ public class Species extends Neat {
 		}
 		max_fitness = max;
 	}
+
+	// specieNEAT
+	public void setgeneration(int generation) {
+		this.generation = generation;
+	}
+	//////////////////////
 
 	/**
 	 * Compute the collective offspring the entire species (the sum of all
@@ -344,7 +545,8 @@ public class Species extends Neat {
 
 			print_to_file(xFile);
 
-		} catch (Throwable e) {
+		}
+		catch (Throwable e) {
 			System.err.println(e);
 		}
 
@@ -361,10 +563,8 @@ public class Species extends Neat {
 		System.out.print(", max_fitness=" + max_fitness);
 		System.out.print(", max_fitness_ever =" + max_fitness_ever);
 		System.out.print(", expected_offspring=" + expected_offspring);
-		System.out
-				.print(", age_of_last_improvement=" + age_of_last_improvement);
-		System.out.print("\n  This Species has " + organisms.size()
-				+ " organisms :");
+		System.out.print(", age_of_last_improvement=" + age_of_last_improvement);
+		System.out.print("\n  This Species has " + organisms.size() + " organisms :");
 		System.out.print("\n ---------------------------------------");
 
 		Iterator itr_organism = organisms.iterator();
@@ -411,8 +611,7 @@ public class Species extends Neat {
 		int tt1 = 0;
 		rc = organisms.removeElement(org);
 		if (!rc)
-			System.out
-					.print("\n ALERT: Attempt to remove nonexistent Organism from Species");
+			System.out.print("\n ALERT: Attempt to remove nonexistent Organism from Species");
 	}
 
 	/**
@@ -421,8 +620,7 @@ public class Species extends Neat {
    *
    *
    */
-	public boolean reproduce(int generation, Population pop,
-			Vector sorted_species) {
+	public boolean reproduce(int generation, Population pop, Vector sorted_species) {
 
 		boolean found; // When a Species is found
 		boolean champ_done = false; // Flag the preservation of the champion
@@ -454,8 +652,7 @@ public class Species extends Neat {
 		Species randspecies = null;
 
 		if ((expected_offspring > 0) && (organisms.size() == 0)) {
-			System.out
-					.print("\n ERROR:  ATTEMPT TO REPRODUCE OUT OF EMPTY SPECIES");
+			System.out.print("\n ERROR:  ATTEMPT TO REPRODUCE OUT OF EMPTY SPECIES");
 			return false;
 		}
 
@@ -476,8 +673,7 @@ public class Species extends Neat {
 			outside = false;
 
 			if (expected_offspring > Neat.p_pop_size) {
-				System.out.print("\n ALERT: EXPECTED OFFSPRING = "
-						+ expected_offspring);
+				System.out.print("\n ALERT: EXPECTED OFFSPRING = " + expected_offspring);
 			}
 
 			//
@@ -493,10 +689,8 @@ public class Species extends Neat {
 				// create a new genome from this copy
 				new_genome = mom.genome.duplicate(count);
 				if ((thechamp.super_champ_offspring) > 1) {
-					if ((NeatRoutine.randfloat() < .8)
-							|| (Neat.p_mutate_add_link_prob == 0.0))
-						new_genome.mutate_link_weight(mut_power, 1.0,
-								NeatConstant.GAUSSIAN);
+					if ((NeatRoutine.randfloat() < .8) || (Neat.p_mutate_add_link_prob == 0.0))
+						new_genome.mutate_link_weight(mut_power, 1.0, NeatConstant.GAUSSIAN);
 					else {
 						// Sometimes we add a link to a superchamp
 						net_analogue = new_genome.genesis(generation);
@@ -528,8 +722,8 @@ public class Species extends Neat {
 																	// mommy
 				champ_done = true;
 
-			} else if ((NeatRoutine.randfloat() < Neat.p_mutate_only_prob)
-					|| poolsize == 1) {
+			}
+			else if ((NeatRoutine.randfloat() < Neat.p_mutate_only_prob) || poolsize == 1) {
 				// Choose the random parent
 				orgnum = NeatRoutine.randint(0, poolsize);
 				_organism = (Organism) organisms.elementAt(orgnum);
@@ -542,12 +736,14 @@ public class Species extends Neat {
 					// System.out.print("\n ....species.reproduce.mutate add node");
 					new_genome.mutate_add_node(pop);
 					mut_struct_baby = true;
-				} else if (NeatRoutine.randfloat() < Neat.p_mutate_add_link_prob) {
+				}
+				else if (NeatRoutine.randfloat() < Neat.p_mutate_add_link_prob) {
 					// System.out.print("\n ....mutate add link");
 					net_analogue = new_genome.genesis(generation);
 					new_genome.mutate_add_link(pop, Neat.p_newlink_tries);
 					mut_struct_baby = true;
-				} else {
+				}
+				else {
 
 					// If we didn't do a structural mutation, we do the other
 					// kinds
@@ -568,8 +764,7 @@ public class Species extends Neat {
 
 					if (NeatRoutine.randfloat() < Neat.p_mutate_link_weights_prob) {
 						// System.out.print("\n    ...mutate link weight");
-						new_genome.mutate_link_weight(mut_power, 1.0,
-								NeatConstant.GAUSSIAN);
+						new_genome.mutate_link_weight(mut_power, 1.0, NeatConstant.GAUSSIAN);
 					}
 
 					if (NeatRoutine.randfloat() < Neat.p_mutate_toggle_enable_prob) {
@@ -620,12 +815,10 @@ public class Species extends Neat {
 						if (randmult > 1.0)
 							randmult = 1.0;
 						// This tends to select better species
-						randspeciesnum = (int) Math
-								.floor((randmult * (sorted_species.size() - 1.0)) + 0.5);
+						randspeciesnum = (int) Math.floor((randmult * (sorted_species.size() - 1.0)) + 0.5);
 						for (sp_ext = 0; sp_ext < randspeciesnum; sp_ext++) {
 						}
-						randspecies = (Species) sorted_species
-								.elementAt(sp_ext);
+						randspecies = (Species) sorted_species.elementAt(sp_ext);
 						++giveup;
 					}
 
@@ -635,17 +828,16 @@ public class Species extends Neat {
 
 				if (NeatRoutine.randfloat() < Neat.p_mate_multipoint_prob) {
 					// System.out.print("\n    mate multipoint baby: ");
-					new_genome = mom.genome.mate_multipoint(_dad.genome, count,
-							mom.orig_fitness, _dad.orig_fitness);
-				} else if (NeatRoutine.randfloat() < (Neat.p_mate_multipoint_avg_prob / (Neat.p_mate_multipoint_avg_prob + Neat.p_mate_singlepoint_prob))) {
+					new_genome = mom.genome.mate_multipoint(_dad.genome, count, mom.orig_fitness, _dad.orig_fitness);
+				}
+				else if (NeatRoutine.randfloat() < (Neat.p_mate_multipoint_avg_prob / (Neat.p_mate_multipoint_avg_prob + Neat.p_mate_singlepoint_prob))) {
 					// System.out.print("\n    mate multipoint_avg baby: ");
-					new_genome = mom.genome.mate_multipoint_avg(_dad.genome,
-							count, mom.orig_fitness, _dad.orig_fitness);
-				} else {
+					new_genome = mom.genome.mate_multipoint_avg(_dad.genome, count, mom.orig_fitness, _dad.orig_fitness);
+				}
+				else {
 					// System.out.print("\n    mate siglepoint baby: ");
 
-					new_genome = mom.genome
-							.mate_singlepoint(_dad.genome, count);
+					new_genome = mom.genome.mate_singlepoint(_dad.genome, count);
 				}
 
 				mate_baby = true;
@@ -654,9 +846,7 @@ public class Species extends Neat {
 				// This is done randomly or if the mom and dad are the same
 				// organism
 
-				if ((NeatRoutine.randfloat() > Neat.p_mate_only_prob)
-						|| (_dad.genome.genome_id == mom.genome.genome_id)
-						|| (_dad.genome.compatibility(mom.genome) == 0.0)) {
+				if ((NeatRoutine.randfloat() > Neat.p_mate_only_prob) || (_dad.genome.genome_id == mom.genome.genome_id) || (_dad.genome.compatibility(mom.genome) == 0.0)) {
 
 					// Do the mutation depending on probabilities of
 					// various mutations
@@ -664,12 +854,14 @@ public class Species extends Neat {
 						// System.out.print("\n ....species.mutate add node2");
 						new_genome.mutate_add_node(pop);
 						mut_struct_baby = true;
-					} else if (NeatRoutine.randfloat() < Neat.p_mutate_add_link_prob) {
+					}
+					else if (NeatRoutine.randfloat() < Neat.p_mutate_add_link_prob) {
 						// System.out.print("\n ....mutate add link2");
 						net_analogue = new_genome.genesis(generation);
 						new_genome.mutate_add_link(pop, Neat.p_newlink_tries);
 						mut_struct_baby = true;
-					} else {
+					}
+					else {
 
 						// If we didn't do a structural mutation, we do the
 						// other kinds
@@ -688,8 +880,7 @@ public class Species extends Neat {
 						}
 						if (NeatRoutine.randfloat() < Neat.p_mutate_link_weights_prob) {
 							// System.out.print("\n    ...mutate link weight");
-							new_genome.mutate_link_weight(mut_power, 1.0,
-									NeatConstant.GAUSSIAN);
+							new_genome.mutate_link_weight(mut_power, 1.0, NeatConstant.GAUSSIAN);
 						}
 						if (NeatRoutine.randfloat() < Neat.p_mutate_toggle_enable_prob) {
 							// System.out.print("\n    ...mutate toggle enable");
@@ -731,7 +922,8 @@ public class Species extends Neat {
 												// species
 				newspecies.add_Organism(baby); // add this baby to species
 				baby.setSpecies(newspecies); // Point baby to owner specie
-			} else {
+			}
+			else {
 				// looop in all species.... (each species is a Vector of
 				// organism...) of population 'pop'
 				// System.out.print("\n    this is case of population with species pree-existent");
@@ -742,12 +934,10 @@ public class Species extends Neat {
 					// point _species-esima
 					Species _specie = ((Species) itr_specie.next());
 					// point to first organism of this _specie-esima
-					compare_org = (Organism) _specie.getOrganisms()
-							.firstElement();
+					compare_org = (Organism) _specie.getOrganisms().firstElement();
 					// compare _organism-esimo('_organism') with first organism
 					// in current specie('compare_org')
-					double curr_compat = baby.genome
-							.compatibility(compare_org.genome);
+					double curr_compat = baby.genome.compatibility(compare_org.genome);
 
 					// System.out.print("\n     affinity = "+curr_compat);
 					if (curr_compat < Neat.p_compat_threshold) {
@@ -782,6 +972,7 @@ public class Species extends Neat {
 	 * Print to file all statistics information for this specie; are information
 	 * for specie, organisms,winner if present and genome
 	 */
+
 	public void print_to_file(IOseq xFile) {
 
 		String mask4 = " 000";
@@ -805,8 +996,7 @@ public class Species extends Neat {
 
 		// System.out.print("\n" + s2);
 
-		s2 = new StringBuffer(
-				"/*-------------------------------------------------------------------*/");
+		s2 = new StringBuffer("/*-------------------------------------------------------------------*/");
 		xFile.IOseqWrite(s2.toString());
 
 		Iterator itr_organism = organisms.iterator();
@@ -825,8 +1015,7 @@ public class Species extends Neat {
 			xFile.IOseqWrite(s2.toString());
 
 			if (_organism.getWinner()) {
-				s2 = new StringBuffer(
-						"/*  $  This organism is WINNER with genome_id ");
+				s2 = new StringBuffer("/*  $  This organism is WINNER with genome_id ");
 				s2.append(fmt4.format(_organism.genome.genome_id));
 				s2.append(" Species #");
 				s2.append(fmt4.format(id));
@@ -838,9 +1027,96 @@ public class Species extends Neat {
 
 		}
 
-		s2 = new StringBuffer(
-				"/*-------------------------------------------------------------------*/");
+		s2 = new StringBuffer("/*-------------------------------------------------------------------*/");
 		xFile.IOseqWrite(s2.toString());
 
 	}
+
+	// specieNEAT
+	public void print_to_file3(IOseq xFile) {
+
+		/*
+		 * String mask4 = "000"; DecimalFormat fmt4 = new DecimalFormat(mask4);
+		 */
+
+		String mask13 = "0.00";
+		DecimalFormat fmt13 = new DecimalFormat(mask13);
+
+		// Print a comment on the Species info
+
+		StringBuffer s2 = new StringBuffer();
+		s2.append(id);
+		s2.append(",");
+		s2.append(fmt13.format(max_fitness));
+		s2.append(",");
+		s2.append(generation);
+		s2.append(",");
+		s2.append(organisms.size());
+		s2.append(",");
+		s2.append(fmt13.format(rank));
+
+		xFile.IOseqWrite(s2.toString());
+
+		// System.out.print("\n" + s2);
+
+		// s2 = new
+		// StringBuffer("/*-------------------------------------------------------------------*/");
+		// xFile.IOseqWrite(s2.toString());
+
+		// Iterator itr_organism = organisms.iterator();
+		// itr_organism = organisms.iterator();
+		/*
+		 * while (itr_organism.hasNext()) { Organism _organism = ((Organism)
+		 * itr_organism.next());
+		 * 
+		 * s2 = new StringBuffer("/* Organism #");
+		 * s2.append(fmt4.format(_organism.genome.genome_id));
+		 * s2.append(" Fitness: "); s2.append(fmt13.format(_organism.fitness));
+		 * s2.append(" Error: "); s2.append(fmt13.format(_organism.error));
+		 * s2.append("                      "); xFile.IOseqWrite(s2.toString());
+		 * 
+		 * if (_organism.getWinner()) { s2 = new
+		 * StringBuffer("/*  $  This organism is WINNER with genome_id ");
+		 * s2.append(fmt4.format(_organism.genome.genome_id));
+		 * s2.append(" Species #"); s2.append(fmt4.format(id));
+		 * s2.append(" $   "); xFile.IOseqWrite(s2.toString()); }
+		 * 
+		 * _organism.getGenome().print_to_file(xFile);
+		 * 
+		 * }
+		 * 
+		 * s2 = new StringBuffer(
+		 * "/*-------------------------------------------------------------------"
+		 * ); xFile.IOseqWrite(s2.toString());
+		 */
+
+	}
+
+	public void print_to_file2(IOseq xFile, int speciesize) {
+
+		int size1 = organisms.size();
+		int sizenumber = 0; // 0:‘å‹K–Í1:’†‹K–Í2:¬‹K–Í
+		StringBuffer s2 = new StringBuffer();
+		s2.append(id);
+		s2.append(",");
+		s2.append(disjointnum / (double) speciesize);
+		s2.append(",");
+		s2.append(excessnum / (double) speciesize);
+		if (size1 <= 200 * 0.05) {
+			sizenumber = 2;
+		}
+		else if ((200 * 0.05 < size1) && (size1 <= 200 * 0.1)) {
+			sizenumber = 1;
+		}
+		else {
+			sizenumber = 0;
+		}
+		s2.append(",");
+		s2.append(sizenumber);
+		xFile.IOseqWrite(s2.toString());
+
+		// Print a comment on the Species info
+
+	}
+	///////////////////////
 }

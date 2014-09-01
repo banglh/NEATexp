@@ -1,7 +1,9 @@
 package nogui;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 
 import jneat.Genome;
@@ -26,13 +28,105 @@ public class Experiment {
 		// double[] p_vals = { 0, 0.1, 0.2, 0.3, 0.4 };
 		int[] s_vals = { 5 };
 		double[] chi_vals = { 0.8 };
-		double[] d_vals = { 0 };
-		double[] p_vals = { 0 };
+		double[] d_vals = { 0.2 };
+		double[] p_vals = { 0.2 };
 		int n = 3;
 		int method = EnvConstant.NEAT;
 
 		// run experiment
 		Experiment.runExperiments(method, s_vals, chi_vals, d_vals, p_vals, n);
+
+		// process results (get average performance for each setting)
+		Experiment.processResults(s_vals, chi_vals, d_vals, p_vals, n);
+	}
+
+	// process results
+	public static void processResults(int[] s_vals, double[] chi_vals, double[] d_vals, double[] p_vals, int n) {
+		// results array
+		double [][] results = new double [EnvConstant.NUMBER_OF_EPOCH][n];
+		double [] lastResult = new double [EnvConstant.NUMBER_OF_EPOCH];
+
+		// get method prefix
+		String prefix = "";
+		switch (EnvConstant.RUNNING_METHOD) {
+			case EnvConstant.NEAT:
+				prefix = "neat";
+				break;
+			case EnvConstant.NEAT_TODAI:
+				prefix = "neatTodai";
+				break;
+			case EnvConstant.SPECIES_NEAT:
+				prefix = "specieNeat";
+				break;
+			case EnvConstant.TOPOLOGY_NEAT:
+				prefix = "topologyNeat";
+				break;
+		}
+
+		for (int s : s_vals) {
+			for (double chi : chi_vals) {
+				for (double d : d_vals) {
+					for (double p : p_vals) {
+						try {
+							// open each result file to get the results
+							for (int i = 0; i < n; i++) {
+								String fileN = String.format("%s//%s_s-%d_chi-%.1f_d-%.1f_p-%.1f_%d.csv", EnvConstant.RESULTS_DIR, prefix, s, chi, d, p, i);
+								BufferedReader br = new BufferedReader(new FileReader(fileN));
+							
+								for (int gen = 0; gen < EnvConstant.NUMBER_OF_EPOCH; gen++) {
+									double fit = Double.parseDouble(br.readLine());
+									results[gen][i] = fit;
+								}
+								
+								br.close();
+							}
+							
+							// calculate the average results
+							for (int gen = 0; gen < EnvConstant.NUMBER_OF_EPOCH; gen++) {
+								// get average generation result
+								lastResult[gen] = getAverage(results[gen]);
+							}
+
+							// open file to write last results
+							String lastResultF = String.format("%s//%s_s-%d_chi-%.1f_d-%.1f_p-%.1f.csv", EnvConstant.RESULTS_DIR, prefix, s, chi, d, p);
+							BufferedWriter bw = new BufferedWriter(new FileWriter(lastResultF));
+							
+							for (int gen = 0; gen < EnvConstant.NUMBER_OF_EPOCH; gen++) {
+								bw.write(String.format("%f\n", lastResult[gen]));
+							}
+							
+							bw.close();
+							
+							// delete temporary result files
+							for (int i = 0; i < n; i++) {
+								File f = new File(String.format("%s//neat_s-%d_chi-%.1f_d-%.1f_p-%.1f_%d.csv", EnvConstant.RESULTS_DIR, s, chi, d, p, i));
+								if (!f.delete()) {
+									System.out.println("Failed to delete temporary result file\n");
+									return;
+								}
+							}
+							
+							System.out.printf("finished writing last results to file %s\n\n", lastResultF);
+						} catch (Exception e) {
+							System.out.println(e);
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	// get average result
+	private static double getAverage(double [] numArr) {
+		double avg = 0.0;
+		int length = numArr.length;
+		
+		for (double num : numArr) {
+			avg += num;
+		}
+		
+		return avg/length;
 	}
 
 	public Experiment() {
@@ -68,6 +162,7 @@ public class Experiment {
 
 		// create new results folder
 		String resultsDir = "..//results_" + System.currentTimeMillis();
+		EnvConstant.RESULTS_DIR = resultsDir;
 		File dir = new File(resultsDir);
 		if (!dir.mkdirs()) {
 			System.out.println("failed to create results folder");

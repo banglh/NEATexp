@@ -125,6 +125,7 @@ public class EnvConstant {
 	public static boolean RUN_EXPERIMENTS = false;
 	public static int RUNNING_METHOD = NEAT; 
 	public static String RUNNING_METHOD_NAME = NEAT_NAME;
+	public static String RESULTS_DIR = "..//results";
 	public static String RESULTS_FILE = "result.csv";
 	public static int EVALUATION_RUNS = 1000;
 	public static int BEST_EVALUATION_RUNS = 10000;

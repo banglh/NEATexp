@@ -149,8 +149,7 @@ public class GameEngine {
 			// run game
 			while (!gameEnded) {
 				// get RBF values
-				RBFs curRBFs = getCurrentRBFs();
-				double[] rbfs = curRBFs.getRBFs();
+				double[] rbfs = getCurrentRBFs();
 
 				// get expected direction from controller
 				int expectedDirection = -1;
@@ -356,8 +355,18 @@ public class GameEngine {
 		initialized = true;
 	}
 
-	private RBFs getCurrentRBFs() {
-		return RBFsTable.get(agentCurPos);
+	private double[] getCurrentRBFs() {
+		RBFs rbfs = RBFsTable.get(agentCurPos);
+		double [] rbfVals = rbfs.getRBFs();
+		
+		// add noise
+		double noise;
+		for (int i = 0; i < rbfVals.length; i++) {
+			noise = 2 * d * (rand.nextDouble() - 0.5);	// uniformly randomly generated from [-d,d]
+			rbfVals[i] += noise;
+		}
+
+		return rbfVals;
 	}
 
 	// calculate the best solution for the current game
